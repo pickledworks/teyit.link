@@ -4,5 +4,5 @@ module.exports = function(url) {
   if (!url.startsWith("https://www.facebook.com/")) {
     return scrollHelper;
   }
-  return "";
+  return "var teyitLink = null;";
 };
