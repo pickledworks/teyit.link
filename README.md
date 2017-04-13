@@ -6,6 +6,8 @@ The function first loads a page using a headless browser, runs a few helper scri
 
 We use a prebuilt [PhantomJS](http://phantomjs.org/) build for the inital load and screenshots, a modified version of the awesome [inliner](https://github.com/remy/inliner) library then loads the assets and does the actual inlining. We use the offical [aws-sdk](https://github.com/aws/aws-sdk-js) for uploading to S3.
 
+You can build and deploy this project like any other Lambda function. If you are not on a Linux platform, run you need to set `PHANTOMJS_PLATFORM` environment variable to `linux` before running `npm install`.
+
 ## Copyright
 
 Teyit, [teyit.org](https://teyit.org/?ref=teyitlink-archiver-github)
