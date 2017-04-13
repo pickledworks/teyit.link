@@ -1,11 +1,12 @@
 {
   "name": "teyitlink-agent",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lambda function backend for the teyit.link project",
   "main": "index.js",
+  "license": "MIT",
   "scripts": {
-    "preinstall-0": "npm run ready-for-lambda",
-    "ready-for-lambda": "export PHANTOMJS_PLATFORM=linux && echo 'setting platform to' $PHANTOMJS_PLATFORM 'for lambda'"
+    "ready-for-lambda": "export PHANTOMJS_PLATFORM=linux && echo 'setting platform to' $PHANTOMJS_PLATFORM 'for lambda'",
+    "try": "node test.js"
   },
   "dependencies": {
     "dotenv": "^4.0.0",
