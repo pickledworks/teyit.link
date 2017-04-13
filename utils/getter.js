@@ -27,7 +27,7 @@ const customRequestAdaptor = (url, settings, callback) => {
         width: 1280,
         height: 800
       })
-      .execute(scrollHelper)
+      .execute(scrollHelper(url))
       .then(() => {
         setTimeout(() => {
            browser.getHTML('html', true).then((body) => {
