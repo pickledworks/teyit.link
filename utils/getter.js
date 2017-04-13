@@ -9,7 +9,7 @@ const scrollHelper = require('./scroll-helper');
 
 const customRequestAdaptor = (url, settings, callback) => {
   console.log("custom: " + url, settings);
-  if (!settings.initialRequest) {
+  if (!settings.initialRequest || url.startsWith("https://www.facebook.com/")) {
     if (url.includes('&amp;oe=')) { // quick and dirty fix for facebook (temporary)
       url = url.replace('&amp;oe=', '&oe=');
     }
@@ -27,7 +27,7 @@ const customRequestAdaptor = (url, settings, callback) => {
         width: 1280,
         height: 800
       })
-      .execute(scrollHelper(url))
+      .execute(scrollHelper)
       .then(() => {
         setTimeout(() => {
            browser.getHTML('html', true).then((body) => {
