@@ -6,7 +6,7 @@ function resolve(inliner, todo, $) {
   debug('start %s links', todo.length);
   return todo.map(function links(link) {
     var url = $(link).attr('href');
-    if (inliner.options.skipAbsoluteUrls &&
+    if (typeof url == "undefined" || inliner.options.skipAbsoluteUrls &&
         (url.indexOf('//') === 0 || url.indexOf('http') === 0)) {
       debug('skipping remote links');
       inliner.emit('progress', 'skipping remote links');

@@ -31,7 +31,7 @@ exports.handler = (event, context, cb) => {
 
   return getter(request_url, archive_id) // Step one: Create rendered HTML and screenshot
     .then((data) => { // Step two: Upload generated files
-      const htmlUpload = uploader(stripJs(data.html), client, bucket, archive_id, 'index.html', 'text/html');
+      const htmlUpload = uploader(data.html, client, bucket, archive_id, 'index.html', 'text/html');
       const ss = fs.readFileSync('/tmp/' + archive_id + '.png');
       const ssUpload = uploader(ss, client, bucket, archive_id, 'screenshot.png', 'image/png');
       return Promise.all([htmlUpload, ssUpload]).then(() => data);

@@ -1,19 +1,41 @@
 'use strict';
+const fs = require('fs');
 const Inliner = require('../vendor/inliner/lib/index');
-const request = require('request')
-const phantomjs = require('phantomjs-prebuilt')
-const webdriverio = require('webdriverio')
+const request = require('request');
+const stripJs = require('strip-js');
+const phantomjs = require('phantomjs-prebuilt');
+const webshot = require('webshot');
+const webdriverio = require('webdriverio');
 const wdOpts = { desiredCapabilities: { browserName: 'phantomjs' } }
 
 const scrollHelper = require('./scroll-helper');
 
 const customRequestAdaptor = (url, settings, callback) => {
   console.log("custom: " + url, settings);
-  if (!settings.initialRequest || url.startsWith("https://www.facebook.com/")) {
+  const isFacebook = url.startsWith("https://www.facebook.com/");
+  const ssFilePath = '/tmp/' + settings.archiveID + '.png';
+
+  if (!settings.initialRequest || isFacebook) {
     if (url.includes('&amp;oe=')) { // quick and dirty fix for facebook (temporary)
       url = url.replace('&amp;oe=', '&oe=');
     }
-    return request(url, settings, callback);
+
+    if (isFacebook) {
+      url = url + '?_fb_noscript=1';
+      settings.headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8"
+      };
+
+    }
+
+    return request(url, settings, (error, res, body) => {
+      if (isFacebook) {
+        const renderedBody = stripJs(body.toString('utf8'));
+        callback(error, res, renderedBody);
+      } else {
+        callback(error, res, body);
+      }
+    });
   }
 
   const res = {};
@@ -31,8 +53,8 @@ const customRequestAdaptor = (url, settings, callback) => {
       .then(() => {
         setTimeout(() => {
            browser.getHTML('html', true).then((body) => {
-            browser.saveScreenshot('/tmp/' + settings.archiveID + '.png').then((screenshot) => {
-              callback(error, res, body);
+            browser.saveScreenshot(ssFilePath).then((screenshot) => {
+              callback(error, res, stripJs(body));
               program.kill();
             });
           });
@@ -53,7 +75,20 @@ module.exports = (url, archiveID) => new Promise((resolve, reject) => {
     if (error) {
       reject(error);
     } else {
-      resolve(data);
+
+      const ssFilePath = '/tmp/' + archiveID + '.png';
+
+      if (fs.existsSync(ssFilePath)) {
+        resolve(data);
+      } else {
+        webshot(data.html, ssFilePath, {siteType:'html'}, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      }
     }
   });
 });
