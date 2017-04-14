@@ -313,6 +313,11 @@ function main() {
         inliner.removeComments($(':root')[0], $);
       }
 
+      // remove all links
+      $('a').each(function() {
+        $(this).attr('href', '#');
+      });
+
       // collapse the white space
       if (inliner.options.collapseWhitespace) {
         $('pre, textarea').each(function () {
