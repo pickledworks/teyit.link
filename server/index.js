@@ -18,6 +18,7 @@ import hbs from 'express-hbs';
 import lusca from 'lusca';
 import morgan from 'morgan';
 import redis from 'redis';
+import i18n from 'i18n-express';
 import session from 'express-session';
 
 // local modules
@@ -79,6 +80,9 @@ const Server = () => {
   // compress response
   app.use(compression());
 
+  // parse cookies
+  app.use(cookieParser());
+
   // session
   app.use(session({
     cookie: {
@@ -114,12 +118,17 @@ const Server = () => {
     extended: true,
     limit: '1mb'
   }));
+
   app.use(bodyParser.json({
     limit: '1mb'
   }));
 
-  // parse cookies
-  app.use(cookieParser());
+  // i18n (multi language)
+  app.use(i18n({
+    translationsPath: path.resolve(root('/languages')),
+    siteLangs: ['en', 'tr'],
+    textsVarName: 'translation'
+  }));
 
   // routes
   app.use('/', routes);
