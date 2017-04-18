@@ -38,10 +38,10 @@ const archive = {
         where: {
           $or: {
             request_url: {
-              $like: query
+              $like: `%${query}%`
             },
             meta_title: {
-              $like: query
+              $like: `%${query}%`
             }
           }
         }
