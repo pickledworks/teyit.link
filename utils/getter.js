@@ -74,6 +74,7 @@ module.exports = (url, archiveID) => new Promise((resolve, reject) => {
   new Inliner(url, {
     adaptor: customRequestAdaptor,
     skipAbsoluteUrls: true,
+    nosvg: true,
     encoding: 'utf-8',
     archiveID: archiveID,
   }, (error, data) => {
