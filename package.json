@@ -34,6 +34,7 @@
     "then-fs": "^2.0.0",
     "uglify-js": "^2.8.0",
     "update-notifier": "^0.5.0",
+    "validator": "^7.0.0",
     "webdriverio": "^4.6.2",
     "webshot": "^0.18.0"
   }
