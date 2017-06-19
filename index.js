@@ -24,7 +24,7 @@ exports.handler = (event, context, cb) => {
   const request_url = event.request_url;
 
   if (!validateURL(request_url)) {
-    cb(true, 'Url is not valid.');
+    cb(true, 'URL is not valid.');
     return;
   }
 

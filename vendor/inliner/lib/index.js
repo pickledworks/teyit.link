@@ -341,21 +341,42 @@ function main() {
       var ogDescription = $('meta[property="og:description"]').attr('content');
       var twitterDescription = $('meta[name="twitter:description"]').attr('content');
 
-      if (checkDescriptionString(metaDescription)) {
+      if (checkString(metaDescription)) {
         description = metaDescription;
         debug('got description via meta: %s', description);
-      } else if (checkDescriptionString(ogDescription)) {
+      } else if (checkString(ogDescription)) {
         description = ogDescription;
         debug('got description via open graph tag: %s', description);
-      } else if (checkDescriptionString(twitterDescription)) {
+      } else if (checkString(twitterDescription)) {
         description = twitterDescription;
         debug('got description via twitter tag: %s', description);
       }
+
+      var image = $('body').find('img:first').attr('src');
+      var ogImage = $('meta[property="og:image"]').attr('content');
+      var ogImage2 = $('meta[property="og:image:url"]').attr('content');
+      var twitterImage = $('meta[name="twitter:image"]').attr('content');
+      var twitterImage2 = $('meta[name="twitter:image:src"]').attr('content');
+      
+      if (checkString(ogImage)) {
+        image = ogImage;
+        debug('got image via open graph image tag: %s', image);
+      } else if (checkString(ogImage2)) {
+        image = ogImage2;
+        debug('got image via open graph image:url tag: %s', image);
+      } else if (checkString(twitterImage)) {
+        image = twitterImage;
+        debug('got image via twitter image tag: %s', image);
+      } else if (checkString(twitterImage2)) {
+        image = twitterImage2;
+        debug('got image via twitter image:src tag: %s', image);
+      } 
 
       return {
         title: $('title').text(),
         description: description,
         html: html,
+        image: image,
       };
     });
   })
@@ -371,7 +392,7 @@ function main() {
   });
 }
 
-function checkDescriptionString(v) {
+function checkString(v) {
   return typeof v === "string" && v.length > 0;
 }
 
