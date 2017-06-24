@@ -1,13 +1,14 @@
+'use title';
 require('dotenv').config();
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser')
-var mysql = require('mysql');
-var AWS = require("aws-sdk");
-var uuid = require("uuid");
-var shortId = require('randomstring');
-var dateFormat = require('dateformat');
-var common_format = 'dd-mm-yyyy HH:MM:ss';
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser')
+const mysql = require('mysql');
+const AWS = require("aws-sdk");
+const uuid = require("uuid");
+const shortId = require('randomstring');
+const dateFormat = require('dateformat');
+const common_format = 'dd-mm-yyyy HH:MM:ss';
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -19,9 +20,9 @@ AWS.config.update({
 app.use('/public', express.static('static'));
 app.set('view engine', 'pug');
 
-var lambda = new AWS.Lambda();
+const lambda = new AWS.Lambda();
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -32,22 +33,22 @@ connection.connect();
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-const createNew = function (req, res) {
-  var archive_id = uuid();
-  var slug = shortId.generate(7);
-  var params = {
+const createNew = (req, res) => {
+  let archive_id = uuid();
+  let slug = shortId.generate(7);
+  let params = {
     FunctionName: "teyitlink-archive", 
     Payload: JSON.stringify({
       request_url : req.request_url,
       archive_id : archive_id,
     })
   };
-  lambda.invoke(params, function(err, data) {
-    var payload = JSON.parse(data.Payload);
+  lambda.invoke(params, (err, data) => {
+    let payload = JSON.parse(data.Payload);
     if(err){
       res.redirect("/?fail-archive");
     }else{
-      var archiveObject = {
+      let archiveObject = {
         'archive_id' : archive_id,
         'slug' : slug,
         'meta_title' : payload.title,
@@ -55,11 +56,19 @@ const createNew = function (req, res) {
         'request_url' : req.request_url,
         'created_at' : new Date()
       };
-      connection.query('insert into archives set  ?',archiveObject, function (error, results) {
-        if(error){
-          res.redirect("/?fail-create");
-        }else{
-          res.redirect('/' + slug);
+      connection.query('insert into archives set  ?',archiveObject, (error, results) => {
+        if(req.accepts('json')) {
+            res.json({
+              error : error,
+              data : archiveObject
+            });
+        }
+        else {
+            if(error){
+              res.redirect("/?fail-create");
+            }else{
+              res.redirect('/' + slug);
+            }
         }
 
       });
@@ -69,22 +78,23 @@ const createNew = function (req, res) {
 
 }
 
-app.post('/new', function(req,res,next){
+
+app.post('/new', (req,res,next) => {
   req.request_url = req.body.request_url;
   next();
 }, createNew);
-app.get('/bookmark', function(req,res,next){
+app.get('/bookmark', (req,res,next) => {
   req.request_url = req.query.request_url;
   next();
 }, createNew);
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get(/^\/(\w{7})?$/,function (req, res) {
-  var slug = req.params[0];
-  connection.query('SELECT * from archives where slug=? limit 1',[slug], function (error, results, fields) {
+app.get(/^\/(\w{7})?$/, (req, res) => {
+  let slug = req.params[0];
+  connection.query('SELECT * from archives where slug=? limit 1',[slug], (error, results, fields) => {
     if(results.length > 0){
       results[0]['created_at'] = dateFormat(new Date(results[0]['created_at']), common_format);
       res.render('detail', results[0]);
@@ -95,19 +105,19 @@ app.get(/^\/(\w{7})?$/,function (req, res) {
 });
 
 
-app.get('/search', function (req, res) {
+app.get('/search', (req, res) => {
   if(!req.query.q){
     res.redirect('/'); //Todo view
   }
-  var query = req.query.q.replace(/\W/g, '');
+  let query = req.query.q.replace(/\W/g, '');
   if(query.length < 3){
     res.redirect('/'); //Todo view
   }
-  connection.query('SELECT * from archives where request_url like ? or meta_title like ?',['%' +query + '%','%' +query + '%'], function (error, results, fields) {
+  connection.query('SELECT * from archives where request_url like ? or meta_title like ?',['%' +query + '%','%' +query + '%'], (error, results, fields) =>{
     if(results.length < 1){
       res.redirect('/?empty');
     }else{
-      results.map(function(res){
+      results.map(res => {
         res.created_at = dateFormat(new Date(res.created_at), common_format);
       });
       res.render('search',{results : results});
@@ -118,7 +128,7 @@ app.get('/search', function (req, res) {
 });
 
 
-app.listen(3000, function () {
+app.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 
