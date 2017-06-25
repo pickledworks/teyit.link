@@ -1,0 +1,52 @@
+<div id="flipkart-navbar">
+  <div class="topbar">
+    <div class="container">
+      <div class="row row1">
+        {{> menu }}
+      </div>
+    </div>
+  </div><!-- .topbar -->
+
+  <div class="container">
+    <div class="row row2">
+      <div class="col-sm-2">
+        {{> logo }}
+      </div>
+
+      <div class="flipkart-navbar-search smallsearch col-sm-5 pull-right">
+        <div class="row">
+          <form method="GET" action="/search">
+            <input class="flipkart-navbar-input col-xs-11" type="text" placeholder="Search Text" name="q" />
+
+            <button class="flipkart-navbar-button col-xs-1" type="submit">
+              <svg width="15px" height="15px">
+                <path fill="#fff" d="M11.618 9.897l4.224 4.212c.092.09.1.23.02.312l-1.464 1.46c-.08.08-.222.072-.314-.02L9.868 11.66M6.486 10.9c-2.42 0-4.38-1.955-4.38-4.367 0-2.413 1.96-4.37 4.38-4.37s4.38 1.957 4.38 4.37c0 2.412-1.96 4.368-4.38 4.368m0-10.834C2.904.066 0 2.96 0 6.533 0 10.105 2.904 13 6.486 13s6.487-2.895 6.487-6.467c0-3.572-2.905-6.467-6.487-6.467 "></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div><!-- .container -->
+</div><!-- #flipkart-navbar -->
+
+<div class="container" style="margin-top:30px">
+  {{#each results }}
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <div class="row result-row">
+          <div class="col-md-3">
+            <div style="height: 150px; background-size: 100% auto; overflow: hidden; background-image: url(//s3.eu-central-1.amazonaws.com/teyitlink/{{ this.archive_id }}/screenshot.png);"></div>
+          </div>
+
+          <div class="col-md-9">
+            <h3><a href="/{{ this.slug }}">{{ this.meta_title }}</a></h3>
+            <p>{{ this.meta_description }}</p>
+            <div class="result-link">{{ this.request_url }}</div>
+            <time class="time" datetime="{{ this.created_at }}"></time>
+          </div>
+        </div>
+      </div>
+    </div>
+  {{/each }}
+</div><!-- .container -->
