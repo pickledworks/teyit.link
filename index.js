@@ -39,6 +39,7 @@ exports.handler = (event, context, cb) => {
       cb(null, {
         description: data.description,
         title: data.title,
+        image: data.image,
       });
     })
     .catch((err) => {
