@@ -17,7 +17,7 @@ const router = Router();
 router.route('/').get(homepage.get);
 router.route('/').all(homepage.all);
 router.route(['/add', '/bookmark', '/new']).get(archive.new.get, lambda);
-router.route(['/add', '/bookmark', '/new']).get(archive.new.post, lambda);
+router.route(['/add', '/bookmark', '/new']).post(archive.new.post, lambda);
 router.route('/search').get(archive.search.get);
 router.route('/search').all(homepage.all);
 router.route(/^\/(\w{7})?$/).get(archive.slug.get);
