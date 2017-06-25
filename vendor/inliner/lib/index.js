@@ -268,6 +268,9 @@ function main() {
     delete todo.$;
 
     var image = $('body').find('img').first().attr('src');
+    if (image) {
+      image = resolve(inliner.url, image);
+    }
 
     if (enc !== 'utf-8') {
       // when transcoding remove any meta tags setting the charset
