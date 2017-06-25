@@ -35,6 +35,11 @@ const createArchive = (archive_id, slug, payload = {}, request_url, req, res) =>
     meta_description: payload.description,
     request_url
   };
+
+  if (req.query.request_id) {
+    params.request_id = Number(req.query.request_id);
+  }
+
   Archive.create(params).then(() => {
     if (req.query.client) {
       res.status(200).json({
