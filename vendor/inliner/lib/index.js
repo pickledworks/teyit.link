@@ -267,6 +267,8 @@ function main() {
     var $ = todo.$;
     delete todo.$;
 
+    var image = $('body').find('img').first().attr('src');
+
     if (enc !== 'utf-8') {
       // when transcoding remove any meta tags setting the charset
       $('meta').each(function charMeta() {
@@ -352,7 +354,6 @@ function main() {
         debug('got description via twitter tag: %s', description);
       }
 
-      var image = $('body').find('img').first().attr('src');
       var ogImage = $('meta[property="og:image"]').attr('content');
       var ogImage2 = $('meta[property="og:image:url"]').attr('content');
       var twitterImage = $('meta[name="twitter:image"]').attr('content');
