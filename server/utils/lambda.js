@@ -36,7 +36,7 @@ const createArchive = (archive_id, slug, payload = {}, request_url, req, res) =>
     request_url
   };
   Archive.create(params).then(() => {
-    if (req.accepts('json')) {
+    if (req.query.client) {
       res.status(200).json({
         data: params,
         status: true
@@ -46,7 +46,7 @@ const createArchive = (archive_id, slug, payload = {}, request_url, req, res) =>
       res.status(200).redirect(`/${slug}`);
     }
   }).catch(() => {
-    if (req.accepts('json')) {
+    if (req.query.client) {
       res.status(503).json({
         status: false
       });
@@ -72,7 +72,7 @@ const lambda = (req, res) => {
   lambdaClient.invoke(params, (err, data) => {
     const payload = JSON.parse(data.Payload);
     if (err) {
-      if (req.accepts('json')) {
+      if (req.query.client) {
         res.status(503).json({
           status: false
         });
