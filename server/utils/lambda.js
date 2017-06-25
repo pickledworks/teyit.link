@@ -33,6 +33,7 @@ const createArchive = (archive_id, slug, payload = {}, request_url, req, res) =>
     slug,
     meta_title: payload.title,
     meta_description: payload.description,
+    image: payload.image,
     request_url
   };
 

@@ -24,6 +24,9 @@ const Archive = db.define('archive', {
   meta_description: {
     type: Sequelize.TEXT
   },
+  image: {
+    type: Sequelize.TEXT
+  },
   request_url: {
     type: Sequelize.STRING
   }
