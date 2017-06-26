@@ -238,17 +238,10 @@ function main() {
     }
 
     // normalise to avoid any mistakes
-    if (enc === 'utf-8' || enc === 'utf8') {
-      enc = 'utf-8';
-    }
-
-    cheerioLoadOptions.decodeEntities = false;
-    if (enc !== 'utf-8') {
-      debug('decoding from: %s', enc);
-      body = iconv.encode(iconv.decode(res.body, enc), 'utf-8');
-    } else {
-      body = res.body;
-    }
+    enc = 'utf-8';
+ 
+    cheerioLoadOptions.decodeEntities = true;
+    body = res.body;
 
     body = body.toString();
 
@@ -376,8 +369,11 @@ function main() {
         debug('got image via twitter image:src tag: %s', image);
       } 
 
+      var _title = $('title').text();
+
+      console.log(_title);
       return {
-        title: $('title').text(),
+        title: _title,
         description: description,
         html: html,
         image: image,
