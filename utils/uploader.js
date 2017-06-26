@@ -1,5 +1,5 @@
 'use strict';
-const uploader = (client, bucket, archive_id) => (name, body) =>
+const uploader = (body, client, bucket, archive_id, name, type) =>
     new Promise((resolve, reject) => {
         client.putObject({
             Bucket: bucket,
@@ -19,4 +19,3 @@ const uploader = (client, bucket, archive_id) => (name, body) =>
     });
 
 module.exports = uploader;
-
