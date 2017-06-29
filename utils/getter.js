@@ -11,7 +11,6 @@ const wdOpts = { desiredCapabilities: { browserName: 'phantomjs' } }
 const scrollHelper = require('./scroll-helper');
 
 const customRequestAdaptor = (url, settings, callback) => {
-  console.log("custom: " + url, settings);
   const isFacebook = url.startsWith("https://www.facebook.com/");
   const ssFilePath = '/tmp/' + settings.archiveID + '.png';
 
@@ -41,6 +40,7 @@ const customRequestAdaptor = (url, settings, callback) => {
         callback(error, res, body);
       }
     });
+    
   }
 
   const res = {};
@@ -57,9 +57,16 @@ const customRequestAdaptor = (url, settings, callback) => {
       .execute(scrollHelper)
       .then(() => {
         setTimeout(() => {
-           browser.getHTML('html', true).then((body) => {
+           browser.getSource().then((body) => {
             browser.saveScreenshot(ssFilePath).then((screenshot) => {
-              callback(error, res, stripJs(body));
+
+              let cleanHtml = stripJs(body);
+              let doctypeRegex    = new RegExp('^<!DOCTYPE .*?>');
+              let doctypeTags       = body.match(doctypeRegex);
+              if(doctypeTags.length > 0){
+                cleanHtml = doctypeTags[0] + cleanHtml;
+              }
+              callback(error, res, cleanHtml);
               program.kill();
             });
           });
@@ -69,8 +76,7 @@ const customRequestAdaptor = (url, settings, callback) => {
 };
 
 module.exports = (url, archiveID) => new Promise((resolve, reject) => {
-  console.log("url: " + url);
-  console.log("archive id: " + archiveID);
+
   new Inliner(url, {
     adaptor: customRequestAdaptor,
     skipAbsoluteUrls: true,
