@@ -1,0 +1,38 @@
+{{define "body"}}
+<div class="container">
+    <div class="row row2">
+        <div class="col-sm-2">
+        {{template "logo" .}}
+        </div>
+
+        <div class="col-sm-5">
+            <div class="row">
+                <label for="saved-input">Kayıt Edilen Adres:</label>
+                <input class="dib flipkart-navbar-input" id="saved-input" type="text"
+                       style="width: 100%; font-size: 13px" value="{{.RequestUrl}}" readonly/>
+            </div>
+        </div>
+
+        <div class="col-sm-3"></div>
+
+        <div class="col-sm-2 pull-right">
+            <div><strong>Tarih:</strong></div>
+            <div><span>{{.CreatedAt}}</span></div>
+        </div>
+    </div>
+</div><!-- .container -->
+
+<div class="capture-screen">
+    <div class="container">
+        <span class="cs-link">Sayfa Önizlemesi</span>
+    {{if .ArchivedAt}}
+        <iframe src="//s3.eu-central-1.amazonaws.com/teyitlink/{{.ArchiveID}}/index.html"
+                width="100%" height="1200px" frameborder="0" class="site-source">
+            Your browser does not seem to support iframes in 2018 //@TODO: Edit this
+        </iframe>
+    {{else}}
+        <h2>We are archiving the fuck out of this site</h2>
+    {{end}}
+    </div>
+</div><!-- .capture-screen -->
+{{end}}

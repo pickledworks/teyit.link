@@ -1,9 +1,10 @@
+{{define "body"}}
 <div id="flipkart-navbar">
 
   <div class="topbar">
     <div class="container">
       <div class="row row1">
-        {{> menu }}
+        {{template "menu" .}}
       </div>
     </div>
   </div><!-- .topbar -->
@@ -12,7 +13,7 @@
     <div class="row row2">
 
       <div class="col-sm-2">
-        {{> logo }}
+        {{template "logo" .}}
       </div>
 
       <div class="flipkart-navbar-search smallsearch col-sm-5 pull-right">
@@ -45,7 +46,7 @@
 
     <div class="clearfix">
       <div class="col-sm-6 col-sm-offset-3" style="margin-top: 10px; margin-bottom: 30px">
-        <form method="POST" action="/new">
+        <form method="POST" action="/archive">
           <div class="form-group">
             <input class="flipkart-navbar-input col-xs-10 fk-input" type="url" placeholder="Kaydetmek istediginiz adres..." name="request_url" />
             <button class="flipkart-navbar-button col-xs-2 fk-button" type="submit">Kaydet</button>
@@ -68,4 +69,5 @@
       </p>
     </div>
   </div>
-</div><!-- .container -->
+</div>
+{{end}}

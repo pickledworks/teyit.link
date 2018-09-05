@@ -1,4 +1,3 @@
-// teyit.link
 
 'use strict';
 
