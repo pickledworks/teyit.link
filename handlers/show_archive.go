@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/gorilla/mux"
-	"gitlab.com/nod/teyitlink-web/database"
+	"gitlab.com/nod/teyit/link/database"
 	"net/http"
 )
 

@@ -7,9 +7,10 @@
 
         <div class="col-sm-5">
             <div class="row">
-                <label for="saved-input">Kayıt Edilen Adres:</label>
-                <input class="dib flipkart-navbar-input" id="saved-input" type="text"
-                       style="width: 100%; font-size: 13px" value="{{.RequestUrl}}" readonly/>
+                <b>Kayıt Edilen Adres:</b>
+                <a href="{{.RequestUrl}}" style="width: 100%; font-size: 13px" class="dib">
+                    {{.RequestUrl}}
+                </a>
             </div>
         </div>
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nod/teyitlink-web/utils"
+	"gitlab.com/nod/teyit/link/utils"
 	"time"
 )
 
@@ -20,6 +20,20 @@ type Archive struct {
 	UpdatedAt       time.Time
 	ArchivedAt      *time.Time
 	DeletedAt       *time.Time
+}
+
+type ArchivePublic struct {
+	ArchiveID  uuid.UUID
+	Slug       string
+	Meta       ArchivePublicMeta
+	Screenshot string
+	RequestUrl string `gorm:"size:2048",valid:"url"`
+	ArchivedAt time.Time
+}
+
+type ArchivePublicMeta struct {
+	Title       string
+	Description string
 }
 
 type ArchiveSearchParams struct {
@@ -92,4 +106,8 @@ func GetArchive(slug string) (*Archive, error) {
 	} else {
 		return &archive, nil
 	}
+}
+
+func ArchivePublicDTO(archive Archive) ArchivePublic {
+
 }

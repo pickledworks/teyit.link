@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"gitlab.com/nod/teyitlink-web/views"
+	"gitlab.com/nod/teyit/link/views"
 	"net/http"
 )
 

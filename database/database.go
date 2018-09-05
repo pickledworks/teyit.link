@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
 )
 
@@ -13,8 +15,8 @@ type Database struct {
 
 var DB *gorm.DB
 
-func InitDB() *gorm.DB {
-	db, err := gorm.Open("mysql", "link:root@/teyitlink?charset=utf8&parseTime=True&loc=Local")
+func InitDB(dialect string, dbUri string) *gorm.DB {
+	db, err := gorm.Open(dialect, "link:root@/teyitlink?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		fmt.Println("db err: ", err)
 	}

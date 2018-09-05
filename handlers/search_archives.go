@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/araddon/dateparse"
-	"gitlab.com/nod/teyitlink-web/database"
+	"gitlab.com/nod/teyit/link/database"
 	"log"
 	"net/http"
 )

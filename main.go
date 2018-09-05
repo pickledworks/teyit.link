@@ -4,8 +4,8 @@ package main
 import (
 	"context"
 	"flag"
-	"gitlab.com/nod/teyitlink-web/database"
-	"gitlab.com/nod/teyitlink-web/handlers"
+	"gitlab.com/nod/teyit/link/database"
+	"gitlab.com/nod/teyit/link/handlers"
 	"log"
 	"net/http"
 	"os"

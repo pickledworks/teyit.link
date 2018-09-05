@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nod/teyitlink-web/database"
+	"gitlab.com/nod/teyit/link/database"
 	"os"
 	"strconv"
 
