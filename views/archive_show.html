@@ -8,17 +8,18 @@
         <div class="col-sm-5">
             <div class="row">
                 <b>Kayıt Edilen Adres:</b>
-                <a href="{{.RequestUrl}}" style="width: 100%; font-size: 13px" class="dib">
-                    {{.RequestUrl}}
-                </a>
+                <a href="{{.data.RequestUrl}}" style="width: 100%; font-size: 13px" class="dib">
+                    {{.data.RequestUrl}}
+                </a> {{.data.MetaTitle}}
             </div>
         </div>
 
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3">
+            <div><strong>Tarih:</strong></div>
+            <div><span>{{.data.CreatedAt}}</span></div>
+        </div>
 
         <div class="col-sm-2 pull-right">
-            <div><strong>Tarih:</strong></div>
-            <div><span>{{.CreatedAt}}</span></div>
         </div>
     </div>
 </div><!-- .container -->
@@ -26,8 +27,8 @@
 <div class="capture-screen">
     <div class="container">
         <span class="cs-link">Sayfa Önizlemesi</span>
-    {{if .ArchivedAt}}
-        <iframe src="//s3.eu-central-1.amazonaws.com/teyitlink/{{.ArchiveID}}/index.html"
+    {{if .data.ArchivedAt}}
+        <iframe src="//s3.eu-central-1.amazonaws.com/teyitlink/{{.data.ArchiveID}}/index.html"
                 width="100%" height="1200px" frameborder="0" class="site-source">
             Your browser does not seem to support iframes in 2018 //@TODO: Edit this
         </iframe>

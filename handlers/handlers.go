@@ -44,9 +44,9 @@ func RespondSuccessJson(w http.ResponseWriter, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func RespondSuccessTemplate(w http.ResponseWriter, page string, data interface{}) {
+func RespondSuccessTemplate(w http.ResponseWriter, r *http.Request, page string, data interface{}) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/html")
 	view := views.NewView("default", page)
-	view.Render(w, data)
+	view.Render(w, r, data)
 }

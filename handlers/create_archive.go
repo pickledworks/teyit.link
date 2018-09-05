@@ -6,6 +6,7 @@ import (
 	"gitlab.com/nod/teyit/link/utils"
 	"log"
 	"net/http"
+	"time"
 )
 
 func CreateArchive(w http.ResponseWriter, r *http.Request) {
@@ -18,14 +19,19 @@ func CreateArchive(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
+		now := time.Now()
 		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
+
 		if err != nil {
 			log.Println("Error", err)
+			archive.FailedAt = &now
+		} else {
+			archive.MetaTitle = result.Title
+			archive.MetaDescription = result.Description
+			archive.Image = result.Image
+			archive.ArchivedAt = &now
 		}
 
-		archive.MetaTitle = result.Title
-		archive.MetaDescription = result.Description
-		archive.Image = result.Image
 		database.SaveArchive(archive)
 	}()
 

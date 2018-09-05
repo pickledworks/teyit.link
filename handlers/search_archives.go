@@ -9,7 +9,7 @@ import (
 
 func SearchArchives(w http.ResponseWriter, r *http.Request) {
 	results, _ := processSearchArchives(r)
-	RespondSuccessTemplate(w, "search", results)
+	RespondSuccessTemplate(w, r, "search", results)
 }
 
 func SearchArchivesJson(w http.ResponseWriter, r *http.Request) {

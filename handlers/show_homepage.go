@@ -5,5 +5,5 @@ import (
 )
 
 func ShowHomepage(w http.ResponseWriter, r *http.Request) {
-	RespondSuccessTemplate(w, "homepage", nil)
+	RespondSuccessTemplate(w, r, "homepage", nil)
 }

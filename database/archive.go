@@ -19,6 +19,7 @@ type Archive struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	ArchivedAt      *time.Time
+	FailedAt        *time.Time
 	DeletedAt       *time.Time
 }
 

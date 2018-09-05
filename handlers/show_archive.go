@@ -12,10 +12,10 @@ func ShowArchive(w http.ResponseWriter, r *http.Request) {
 
 	archive, err := database.GetArchive(slug)
 	if err != nil {
-		// result in error
+		NotFoundPage(w, r)
+	} else {
+		RespondSuccessTemplate(w, r, "archive_show", archive)
 	}
-
-	RespondSuccessTemplate(w, "archive_show", archive)
 }
 
 func ShowArchiveJson(w http.ResponseWriter, r *http.Request) {
