@@ -2,47 +2,25 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/satori/go.uuid"
-	"gitlab.com/nod/teyit/link/database"
-	"os"
-	"strconv"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/kataras/iris/core/errors"
+	"github.com/satori/go.uuid"
 )
 
 type archiveRequest struct {
-	RequestUrl string    `json:"request_url"`
 	ArchiveId  uuid.UUID `json:"archive_id"`
+	RequestUrl string    `json:"request_url"`
 }
 
-type getItemsResponseError struct {
-	Message string `json:"message"`
+type ArchiveResponsePayload struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
 }
 
-type getItemsResponseData struct {
-	Item string `json:"item"`
-}
-
-type getItemsResponseBody struct {
-	Result string                 `json:"result"`
-	Data   []getItemsResponseData `json:"data"`
-	Error  getItemsResponseError  `json:"error"`
-}
-
-type getItemsResponseHeaders struct {
-	ContentType string `json:"Content-Type"`
-}
-
-type getItemsResponse struct {
-	StatusCode int                     `json:"statusCode"`
-	Headers    getItemsResponseHeaders `json:"headers"`
-	Body       getItemsResponseBody    `json:"body"`
-}
-
-func RunArchiveLambda(archiveRecord *database.Archive) {
+func RunArchiveLambda(archiveId uuid.UUID, requestUrl string) (*ArchiveResponsePayload, error) {
 	// Create Lambda service client
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
@@ -51,12 +29,12 @@ func RunArchiveLambda(archiveRecord *database.Archive) {
 	client := lambda.New(sess, &aws.Config{Region: aws.String("eu-central-1")})
 
 	// Create the archive request for Lambda
-	request := archiveRequest{archiveRecord.RequestUrl, archiveRecord.ArchiveID}
+	request := archiveRequest{archiveId, requestUrl}
 	payload, err := json.Marshal(request)
 
+	// Error marshalling request
 	if err != nil {
-		fmt.Println("Error marshalling archive request")
-		os.Exit(0)
+		return nil, err
 	}
 
 	result, err := client.Invoke(&lambda.InvokeInput{
@@ -64,38 +42,24 @@ func RunArchiveLambda(archiveRecord *database.Archive) {
 		Payload:      payload,
 	})
 
+	// Error running the lambda
 	if err != nil {
-		fmt.Println("Error calling the lambda")
-		os.Exit(0)
+		return nil, err
 	}
 
-	var resp getItemsResponse
+	// If the status code is NOT 200, the archiving failed
+	if *result.StatusCode != 200 {
+		return nil, errors.New("Archiving failed")
+	}
 
-	err = json.Unmarshal(result.Payload, &resp)
+	var responsePayload ArchiveResponsePayload
 
+	err = json.Unmarshal(result.Payload, &responsePayload)
+
+	// Error unmarshalling response payload
 	if err != nil {
-		fmt.Println("Error unmarshalling MyGetItemsFunction response")
-		os.Exit(0)
+		return nil, err
 	}
 
-	// If the status code is NOT 200, the call failed
-	if resp.StatusCode != 200 {
-		fmt.Println("Error getting items, StatusCode: " + strconv.Itoa(resp.StatusCode))
-		os.Exit(0)
-	}
-
-	// If the result is failure, we got an error
-	if resp.Body.Result == "failure" {
-		fmt.Println("Failed to get items")
-		os.Exit(0)
-	}
-
-	// Print out items
-	if len(resp.Body.Data) > 0 {
-		for i := range resp.Body.Data {
-			fmt.Println(resp.Body.Data[i].Item)
-		}
-	} else {
-		fmt.Println("There were no items")
-	}
+	return &responsePayload, nil
 }

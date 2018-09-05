@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	db := database.InitDB()
+	db := database.InitDB("mysql", "")
 	database.Migrate(db)
 	defer db.Close()
 

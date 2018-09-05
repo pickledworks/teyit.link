@@ -18,7 +18,15 @@ func CreateArchive(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		utils.RunArchiveLambda(archive)
+		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
+		if err != nil {
+			log.Println("Error", err)
+		}
+
+		archive.MetaTitle = result.Title
+		archive.MetaDescription = result.Description
+		archive.Image = result.Image
+		database.SaveArchive(archive)
 	}()
 
 	redirectTo := fmt.Sprintf("/%s", archive.Slug)

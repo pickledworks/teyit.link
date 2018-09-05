@@ -108,6 +108,7 @@ func GetArchive(slug string) (*Archive, error) {
 	}
 }
 
-func ArchivePublicDTO(archive Archive) ArchivePublic {
-
+func SaveArchive(archive *Archive) {
+	db := GetDB()
+	db.Save(&archive)
 }
