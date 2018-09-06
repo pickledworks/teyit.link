@@ -18,8 +18,10 @@ func CreateRoutes() *mux.Router {
 
 	r.HandleFunc("/archive", CreateArchive).Methods("POST")
 	r.HandleFunc("/api/archive", CreateArchiveJson).Methods("POST")
+	r.HandleFunc("/api/count-previous-archives", CheckPreviousArchives).Methods("GET")
 	r.HandleFunc("/{slug}", ShowArchive).Methods("GET")
 	r.HandleFunc("/{slug}", ShowArchiveJson).Methods("GET").HeadersRegexp("Content-Type", "application/json")
+	r.HandleFunc("/api/archives/{slug}", ShowArchiveJson).Methods("GET")
 
 	// below are legacy links from v1, we plan to phase these out
 	// but we can't immediately because we suspect programmatic usage
@@ -40,6 +42,12 @@ func NotFoundPage(w http.ResponseWriter, r *http.Request) {
 
 func RespondSuccessJson(w http.ResponseWriter, data interface{}) {
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
+func RespondInvalidRequestJson(w http.ResponseWriter, data interface{}) {
+	w.WriteHeader(http.StatusUnprocessableEntity)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }

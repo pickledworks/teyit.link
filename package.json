@@ -1,0 +1,31 @@
+{
+  "name": "@teyit/link",
+  "version": "0.2.0",
+  "description": "",
+  "main": "static/app.js",
+  "scripts": {
+    "clean": "rm -rf static/app.js static/app.map",
+    "prebuild": "npm run clean",
+    "build": "parcel build client/app.js --global TeyitLink no-cache --out-dir static --out-file app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/nod/teyit/link.git"
+  },
+  "author": "NOD Digital <hey@nod.digital>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teyit/link/issues"
+  },
+  "homepage": "https://teyit.link",
+  "devDependencies": {
+    "parcel-bundler": "^1.9.7"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "preact": "^8.3.1"
+  }
+}

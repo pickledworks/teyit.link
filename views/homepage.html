@@ -47,15 +47,8 @@
         </p>
 
         <div class="clearfix">
-            <div class="col-sm-6 col-sm-offset-3" style="margin-top: 10px; margin-bottom: 30px">
-                <form method="POST" action="/archive">
-                {{.csrf}}
-                    <div class="form-group">
-                        <input class="flipkart-navbar-input col-xs-10 fk-input" type="url"
-                               placeholder="Kaydetmek istediginiz adres..." name="request_url"/>
-                        <button class="flipkart-navbar-button col-xs-2 fk-button" type="submit">Kaydet</button>
-                    </div>
-                </form>
+            <div class="col-xs-12" style="margin-top: 10px; margin-bottom: 30px">
+                <div id="tl-archive-input">Yükleniyor...</div>
             </div>
         </div>
 

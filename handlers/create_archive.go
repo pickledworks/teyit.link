@@ -3,11 +3,24 @@ package handlers
 import (
 	"fmt"
 	"gitlab.com/nod/teyit/link/database"
-	"gitlab.com/nod/teyit/link/utils"
 	"log"
 	"net/http"
-	"time"
 )
+
+type CreateArchiveResponse struct {
+
+}
+func CheckPreviousArchives(w http.ResponseWriter, r *http.Request) {
+	requestUrl := r.FormValue("request_url")
+
+	resp, err := database.CountArchivesByRequestUrl(requestUrl)
+	if err != nil {
+		log.Println("Error in counting archives", err)
+		return
+	}
+
+	RespondSuccessJson(w, resp)
+}
 
 func CreateArchive(w http.ResponseWriter, r *http.Request) {
 	requestUrl := r.PostFormValue("request_url")
@@ -18,31 +31,25 @@ func CreateArchive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		now := time.Now()
-		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
-
-		if err != nil {
-			log.Println("Error", err)
-			archive.FailedAt = &now
-		} else {
-			archive.MetaTitle = result.Title
-			archive.MetaDescription = result.Description
-			archive.Image = result.Image
-			archive.ArchivedAt = &now
-		}
-
-		database.SaveArchive(archive)
-	}()
-
 	redirectTo := fmt.Sprintf("/%s", archive.Slug)
 	http.Redirect(w, r, redirectTo, http.StatusFound)
 }
 
 func CreateArchiveJson(w http.ResponseWriter, r *http.Request) {
+	requestUrl := r.PostFormValue("request_url")
 
+	archive, err := database.CreateArchive(requestUrl)
+	if err != nil {
+		log.Println("Error", err, requestUrl, &archive)
+
+		RespondInvalidRequestJson(w, err)
+		return
+	}
+
+	RespondSuccessJson(w, database.GetArchiveAsArchivePublic(archive))
 }
 
 func CreateArchiveLegacy(w http.ResponseWriter, r *http.Request) {
 
 }
+

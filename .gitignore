@@ -8,6 +8,7 @@
 npm-debug.log
 node_modules
 yarn.lock
+.cache
 
 ## macOS
 .DS_Store
@@ -15,6 +16,10 @@ yarn.lock
 ## custom
 .env
 dist
+
+## generated files
+static/app.js
+static/app.map
 
 ## Binaries for programs and plugins
 *.exe

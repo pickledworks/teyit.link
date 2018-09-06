@@ -19,6 +19,13 @@ func ShowArchive(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowArchiveJson(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	slug := vars["slug"]
 
+	archive, err := database.GetArchive(slug)
+	if err != nil {
+		NotFoundPage(w, r)
+	} else {
+		RespondSuccessJson(w, database.GetArchiveAsArchivePublic(archive))
+	}
 }

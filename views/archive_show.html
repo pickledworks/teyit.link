@@ -33,7 +33,10 @@
             Your browser does not seem to support iframes in 2018 //@TODO: Edit this
         </iframe>
     {{else}}
-        <h2>We are archiving the fuck out of this site</h2>
+            <div width="100%" height="1200px" class="site-source">
+                <h2>Arşivleme devam ediyor. Tamamlandığında sayfa yenilecek.</h2>
+            </div>
+        <script>window["ARCHIVE_IN_PROGRESS"] = "{{.data.Slug}}";</script>
     {{end}}
     </div>
 </div><!-- .capture-screen -->

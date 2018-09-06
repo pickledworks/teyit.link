@@ -6,6 +6,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nod/teyit/link/utils"
+	"log"
 	"time"
 )
 
@@ -24,12 +25,12 @@ type Archive struct {
 }
 
 type ArchivePublic struct {
-	ArchiveID  uuid.UUID
-	Slug       string
-	Meta       ArchivePublicMeta
-	Screenshot string
-	RequestUrl string `gorm:"size:2048",valid:"url"`
-	ArchivedAt time.Time
+	ArchiveID  uuid.UUID         `json:"archive_id"`
+	Slug       string            `json:"slug"`
+	Meta       ArchivePublicMeta `json:"meta"`
+	Screenshot string            `json:"screenshot"`
+	RequestUrl string            `json:"request_url"`
+	ArchivedAt time.Time         `json:"archived_at"`
 }
 
 type ArchivePublicMeta struct {
@@ -45,9 +46,18 @@ type ArchiveSearchParams struct {
 	CountOnly  bool
 }
 
+type CheckPreviousArchivesResponse struct {
+	Count          int        `json:"count"`
+	LastArchivedAt *time.Time `json:"last_archived_at"`
+}
+
 var UrlValidationError = errors.New("invalidurl")
 
 func CreateArchive(requestUrl string) (*Archive, error) {
+	if requestUrl == "" {
+		return nil, UrlValidationError
+	}
+
 	archiveId, _ := uuid.NewV4()
 
 	archive := Archive{
@@ -64,6 +74,23 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 	db := GetDB()
 	db.NewRecord(&archive)
 	db.Create(&archive)
+
+	go func() {
+		now := time.Now()
+		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
+
+		if err != nil {
+			log.Println("Error", err)
+			archive.FailedAt = &now
+		} else {
+			archive.MetaTitle = result.Title
+			archive.MetaDescription = result.Description
+			archive.Image = result.Image
+			archive.ArchivedAt = &now
+		}
+
+		SaveArchive(&archive)
+	}()
 
 	return &archive, nil
 }
@@ -100,9 +127,8 @@ var ArchiveNotFoundError = errors.New("archivenotfound")
 
 func GetArchive(slug string) (*Archive, error) {
 	var archive Archive
-	db := GetDB()
 
-	if err := db.Where("slug = ?", slug).First(&archive).Error; err != nil {
+	if err := GetDB().Where("slug = ?", slug).First(&archive).Error; err != nil {
 		return nil, ArchiveNotFoundError
 	} else {
 		return &archive, nil
@@ -110,6 +136,41 @@ func GetArchive(slug string) (*Archive, error) {
 }
 
 func SaveArchive(archive *Archive) {
-	db := GetDB()
-	db.Save(&archive)
+	GetDB().Save(&archive)
+}
+
+func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse, error) {
+	var archives []Archive
+	var last Archive
+
+	db := GetDB().Select("archived_at").Where("request_url = ?", requestUrl)
+	db.Find(&archives)
+
+	count := len(archives)
+	if count > 0 {
+		last = archives[0]
+	} else {
+		nilTime := time.Time{}
+		last = Archive{ArchivedAt: &nilTime}
+	}
+
+	return CheckPreviousArchivesResponse{
+		count,
+		last.ArchivedAt,
+	}, nil
+}
+
+func GetArchiveAsArchivePublic(archive *Archive) ArchivePublic {
+	public := ArchivePublic{
+		ArchiveID: archive.ArchiveID,
+		Slug: archive.Slug,
+		RequestUrl: archive.RequestUrl,
+	}
+
+	if archive.ArchivedAt != nil {
+		public.Meta = ArchivePublicMeta{archive.MetaTitle, archive.MetaDescription}
+		public.ArchivedAt = *archive.ArchivedAt
+	}
+
+	return public
 }
