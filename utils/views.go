@@ -1,4 +1,4 @@
-package views
+package utils
 
 import (
 	"github.com/gorilla/csrf"
