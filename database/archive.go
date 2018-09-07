@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+//go:generate goqueryset -in archive.go
+
+// Archive model is the core model
+// gen:qs
 type Archive struct {
 	ArchiveID       uuid.UUID `gorm:"primary_key"`
 	Slug            string    `gorm:"unique_index"`
