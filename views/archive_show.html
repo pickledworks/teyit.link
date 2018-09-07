@@ -1,0 +1,45 @@
+{{define "body"}}
+<div class="container">
+    <div class="row row2">
+        <div class="col-sm-2">
+        {{template "logo" .}}
+        </div>
+
+        <div class="col-sm-5">
+            <div class="row">
+                <b>Kayıt Edilen Adres:</b>
+                <a href="{{.data.RequestUrl}}" style="width: 100%; font-size: 13px" class="dib">
+                    {{.data.RequestUrl}}
+                </a> {{.data.MetaTitle}}
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div><strong>Tarih:</strong></div>
+            <div><span>{{.data.CreatedAt}}</span></div>
+        </div>
+
+        <div class="col-sm-2 pull-right">
+{{if .data.ArchivedAt}}
+            <img src="/{{.data.Slug}}/screenshot" alt="{{.data.MetaTitle}}" height="100px" />
+{{end}}
+        </div>
+    </div>
+</div><!-- .container -->
+
+<div class="capture-screen">
+    <div class="container">
+        <span class="cs-link">Sayfa Önizlemesi</span>
+    {{if .data.ArchivedAt}}
+        <iframe src="/{{.data.Slug}}/snapshot"
+                width="100%" height="1200px" frameborder="0" class="site-source">
+        </iframe>
+    {{else}}
+            <div width="100%" height="1200px" class="site-source">
+                <h2>Arşivleme devam ediyor. Tamamlandığında sayfa otomatik olarak yenilecek.</h2>
+            </div>
+        <script>window["ARCHIVE_IN_PROGRESS"] = "{{.data.Slug}}";</script>
+    {{end}}
+    </div>
+</div><!-- .capture-screen -->
+{{end}}

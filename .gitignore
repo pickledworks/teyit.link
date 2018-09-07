@@ -7,6 +7,8 @@
 ## npm
 npm-debug.log
 node_modules
+yarn.lock
+.cache
 
 ## macOS
 .DS_Store
@@ -14,3 +16,21 @@ node_modules
 ## custom
 .env
 dist
+
+## generated files
+static/app.js
+static/app.map
+/vendor
+
+## Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+## Test binary, build with `go test -c`
+*.test
+
+## Output of the go coverage tool, specifically when used with LiteIDE
+*.out
