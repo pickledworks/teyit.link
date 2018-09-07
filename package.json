@@ -4,9 +4,9 @@
   "description": "",
   "main": "static/app.js",
   "scripts": {
-    "clean": "rm -rf static/app.js static/app.map",
+    "clean": "rm -rf public/app.js public/app.map",
     "prebuild": "npm run clean",
-    "build": "parcel build client/app.js --global TeyitLink no-cache --out-dir static --out-file app.js"
+    "build": "parcel build client/app.js --global TeyitLink no-cache --out-dir public --out-file app.js"
   },
   "repository": {
     "type": "git",
