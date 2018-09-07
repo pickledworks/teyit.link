@@ -50,6 +50,9 @@ func (c *Config) setDefaults() {
 	if c.WorkerLambdaName == "" {
 		c.WorkerLambdaName = "teyitlink-archive"
 	}
+	if c.BucketName == "" {
+		c.BucketName = "teyitlink"
+	}
 	if c.AwsRegion == "" {
 		c.AwsRegion = "eu-central-1"
 	}
