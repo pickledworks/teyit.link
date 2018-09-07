@@ -25,11 +25,9 @@ type Archive struct {
 }
 
 type ArchivePublic struct {
-	ArchiveID  uuid.UUID         `json:"archive_id"`
 	Slug       string            `json:"slug"`
-	Meta       ArchivePublicMeta `json:"meta"`
-	Screenshot string            `json:"screenshot"`
 	RequestUrl string            `json:"request_url"`
+	Meta       ArchivePublicMeta `json:"meta"`
 	ArchivedAt time.Time         `json:"archived_at"`
 }
 
@@ -63,7 +61,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 	archive := Archive{
 		ArchiveID:  archiveId,
 		RequestUrl: requestUrl,
-		Slug:       utils.RandString(7),
+		Slug:       GenerateArchiveSlug(),
 	}
 
 	_, err := govalidator.ValidateStruct(archive)
@@ -93,6 +91,19 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 	}()
 
 	return &archive, nil
+}
+
+func GenerateArchiveSlug() string {
+	slug := utils.RandString(7)
+
+	var count int
+	GetDB().Model(Archive{}).Where("slug = ?", slug).Limit(1).Count(&count)
+
+	if count > 0 {
+		return GenerateArchiveSlug()
+	}
+
+	return slug
 }
 
 func FindArchives(params ArchiveSearchParams) ([]Archive, error) {
@@ -162,8 +173,7 @@ func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse
 
 func GetArchiveAsArchivePublic(archive *Archive) ArchivePublic {
 	public := ArchivePublic{
-		ArchiveID: archive.ArchiveID,
-		Slug: archive.Slug,
+		Slug:       archive.Slug,
 		RequestUrl: archive.RequestUrl,
 	}
 
