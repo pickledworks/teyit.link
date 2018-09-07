@@ -22,3 +22,14 @@ func RandString(n int) string {
 	}
 	return string(b)
 }
+
+type NullableTime struct {
+	time.Time
+}
+func (t NullableTime) MarshalJSON() ([]byte, error) {
+	if t.IsZero() {
+		return []byte("null"), nil
+	} else {
+		return t.Time.MarshalJSON()
+	}
+}
