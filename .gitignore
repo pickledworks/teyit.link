@@ -20,6 +20,7 @@ dist
 ## generated files
 static/app.js
 static/app.map
+vendor
 
 ## Binaries for programs and plugins
 *.exe
