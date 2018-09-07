@@ -16,9 +16,9 @@ type Database struct {
 var DB *gorm.DB
 
 func InitDB(dialect string, dbUri string) *gorm.DB {
-	db, err := gorm.Open(dialect, "link:root@/teyitlink?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open(dialect, fmt.Sprintf("%s?charset=utf8&parseTime=True&loc=Local", dbUri))
 	if err != nil {
-		fmt.Println("db err: ", err)
+		log.Fatal("db err: ", err)
 	}
 	db.DB().SetMaxIdleConns(10)
 	DB = db

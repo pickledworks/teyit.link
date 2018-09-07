@@ -21,12 +21,15 @@ type ArchiveResponsePayload struct {
 }
 
 func RunArchiveLambda(archiveId uuid.UUID, requestUrl string) (*ArchiveResponsePayload, error) {
+	config := GetConfig()
+
 	// Create Lambda service client
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-	client := lambda.New(sess, &aws.Config{Region: aws.String("eu-central-1")})
+
+	client := lambda.New(sess, &aws.Config{Region: aws.String(config.AwsRegion)})
 
 	// Create the archive request for Lambda
 	request := archiveRequest{archiveId, requestUrl}
@@ -38,7 +41,7 @@ func RunArchiveLambda(archiveId uuid.UUID, requestUrl string) (*ArchiveResponseP
 	}
 
 	result, err := client.Invoke(&lambda.InvokeInput{
-		FunctionName: aws.String("teyitlink-archive"),
+		FunctionName: aws.String(config.WorkerLambdaName),
 		Payload:      payload,
 	})
 
@@ -49,14 +52,14 @@ func RunArchiveLambda(archiveId uuid.UUID, requestUrl string) (*ArchiveResponseP
 
 	// If the status code is NOT 200, the archiving failed
 	if *result.StatusCode != 200 {
-		return nil, errors.New("Archiving failed")
+		return nil, errors.New("archiving failed")
 	}
 
 	var responsePayload ArchiveResponsePayload
 
 	err = json.Unmarshal(result.Payload, &responsePayload)
 
-	// Error unmarshalling response payload
+	// Error unmarshaling response payload
 	if err != nil {
 		return nil, err
 	}

@@ -3,9 +3,9 @@ package main
 
 import (
 	"context"
-	"flag"
 	"gitlab.com/nod/teyit/link/database"
 	"gitlab.com/nod/teyit/link/handlers"
+	"gitlab.com/nod/teyit/link/utils"
 	"log"
 	"net/http"
 	"os"
@@ -13,20 +13,16 @@ import (
 	"time"
 )
 
+
 func main() {
-	db := database.InitDB("mysql", "")
+	config := utils.InitConfig()
+
+	db := database.InitDB(config.DbDialect, config.DbUri)
 	database.Migrate(db)
 	defer db.Close()
 
-	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
-	flag.Parse()
-
-	// @TODO: Replace this token with env variable when we have the config system up and running
-	// CSRF := csrf.Protect([]byte("32-byte-long-auth-key09876543112"))
-
 	srv := &http.Server{
-		Addr: "0.0.0.0:8080",
+		Addr: config.ServerAddr,
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
@@ -54,7 +50,7 @@ func main() {
 	<-c
 
 	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	ctx, cancel := context.WithTimeout(context.Background(), config.GracefulShutdown)
 	defer cancel()
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
