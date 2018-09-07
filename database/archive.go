@@ -82,7 +82,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		Slug:       GenerateArchiveSlug(),
 	}
 
-	_, err := govalidator.ValidateStruct(archive)
+	_, err = govalidator.ValidateStruct(archive)
 	if err != nil {
 		return nil, UrlValidationError
 	}
