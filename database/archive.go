@@ -32,16 +32,16 @@ type Archive struct {
 }
 
 type ArchivePublic struct {
-	Slug       string            `json:"slug"`
-	RequestUrl string            `json:"request_url"`
-	Meta       ArchivePublicMeta `json:"meta"`
-	ArchivedAt time.Time         `json:"archived_at"`
+	Slug       string             `json:"slug"`
+	RequestUrl string             `json:"request_url"`
+	Meta       ArchivePublicMeta  `json:"meta"`
+	ArchivedAt utils.NullableTime `json:"archived_at"`
 }
 
 type ArchivePublicMeta struct {
-	Title       string
-	Description string
-	Image       string
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
 }
 
 type ArchiveSearchParams struct {
@@ -64,7 +64,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		return nil, UrlValidationError
 	}
 
-	url, err  := url.Parse(requestUrl)
+	url, err := url.Parse(requestUrl)
 
 	if err != nil {
 		return nil, UrlValidationError
@@ -197,7 +197,7 @@ func GetArchiveAsArchivePublic(archive *Archive) ArchivePublic {
 
 	if archive.ArchivedAt != nil {
 		public.Meta = ArchivePublicMeta{archive.MetaTitle, archive.MetaDescription, archive.MetaImage}
-		public.ArchivedAt = *archive.ArchivedAt
+		public.ArchivedAt = utils.NullableTime{Time: *archive.ArchivedAt}
 	}
 
 	return public
