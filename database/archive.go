@@ -60,7 +60,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		return nil, UrlValidationError
 	}
 
-	archiveId, _ := uuid.NewV4()
+	archiveId := uuid.NewV4()
 
 	archive := Archive{
 		ArchiveID:  archiveId,
