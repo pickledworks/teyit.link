@@ -28,7 +28,6 @@ func RunArchiveLambda(archiveId uuid.UUID, requestUrl string) (*ArchiveResponseP
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-
 	client := lambda.New(sess, &aws.Config{Region: aws.String(config.AwsRegion)})
 
 	// Create the archive request for Lambda

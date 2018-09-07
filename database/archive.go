@@ -7,6 +7,8 @@ import (
 	"github.com/satori/go.uuid"
 	"gitlab.com/nod/teyit/link/utils"
 	"log"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -15,17 +17,18 @@ import (
 // Archive model is the core model
 // gen:qs
 type Archive struct {
-	ArchiveID       uuid.UUID `gorm:"primary_key"`
+	ID              uint      `gorm:"primary_key"`
+	RequestUrl      string    `gorm:"size:2048",valid:"url"`
+	ArchiveID       uuid.UUID `gorm:"unique_index"`
 	Slug            string    `gorm:"unique_index"`
 	MetaTitle       string
 	MetaDescription string `gorm:"size:2048"`
-	Image           string
-	RequestUrl      string `gorm:"size:2048",valid:"url"`
+	MetaImage       string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	ArchivedAt      *time.Time
 	FailedAt        *time.Time
-	DeletedAt       *time.Time
+	DeletedAt       *time.Time `sql:"index"`
 }
 
 type ArchivePublic struct {
@@ -38,6 +41,7 @@ type ArchivePublic struct {
 type ArchivePublicMeta struct {
 	Title       string
 	Description string
+	Image       string
 }
 
 type ArchiveSearchParams struct {
@@ -57,6 +61,16 @@ var UrlValidationError = errors.New("invalidurl")
 
 func CreateArchive(requestUrl string) (*Archive, error) {
 	if requestUrl == "" {
+		return nil, UrlValidationError
+	}
+
+	url, err  := url.Parse(requestUrl)
+
+	if err != nil {
+		return nil, UrlValidationError
+	}
+
+	if strings.Contains(url.Host, "teyit.link") {
 		return nil, UrlValidationError
 	}
 
@@ -87,7 +101,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		} else {
 			archive.MetaTitle = result.Title
 			archive.MetaDescription = result.Description
-			archive.Image = result.Image
+			archive.MetaImage = result.Image
 			archive.ArchivedAt = &now
 		}
 
@@ -182,7 +196,7 @@ func GetArchiveAsArchivePublic(archive *Archive) ArchivePublic {
 	}
 
 	if archive.ArchivedAt != nil {
-		public.Meta = ArchivePublicMeta{archive.MetaTitle, archive.MetaDescription}
+		public.Meta = ArchivePublicMeta{archive.MetaTitle, archive.MetaDescription, archive.MetaImage}
 		public.ArchivedAt = *archive.ArchivedAt
 	}
 
