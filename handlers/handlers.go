@@ -20,6 +20,8 @@ func CreateRoutes() *mux.Router {
 	r.HandleFunc("/api/archive", CreateArchiveJson).Methods("POST")
 	r.HandleFunc("/api/count-previous-archives", CheckPreviousArchives).Methods("GET")
 	r.HandleFunc("/{slug}", ShowArchive).Methods("GET")
+	r.HandleFunc("/{slug}/screenshot", RedirectToArchiveScreenshot).Methods("GET")
+	r.HandleFunc("/{slug}/snapshot", RedirectToArchiveSnapshot).Methods("GET")
 	r.HandleFunc("/{slug}", ShowArchiveJson).Methods("GET").HeadersRegexp("Content-Type", "application/json")
 	r.HandleFunc("/api/archives/{slug}", ShowArchiveJson).Methods("GET")
 
