@@ -18,9 +18,10 @@ yarn.lock
 dist
 
 ## generated files
-static/app.js
-static/app.map
+public/app.js
+public/app.map
 /vendor
+/statik
 
 ## Binaries for programs and plugins
 *.exe
