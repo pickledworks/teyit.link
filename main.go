@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+//go:generate statik -src=./public/
 
 func main() {
 	config := utils.InitConfig()

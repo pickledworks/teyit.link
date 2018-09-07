@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"gitlab.com/nod/teyit/link/views"
+	"github.com/rakyll/statik/fs"
+	_ "gitlab.com/nod/teyit/link/statik"
+	"gitlab.com/nod/teyit/link/utils"
+	"log"
 	"net/http"
 )
 
 func CreateRoutes() *mux.Router {
 	r := mux.NewRouter()
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	r.HandleFunc("/", ShowHomepage).Methods("GET")
 	r.HandleFunc("/search", SearchArchives).Methods("GET")
@@ -30,6 +32,13 @@ func CreateRoutes() *mux.Router {
 	r.HandleFunc("/new", CreateArchiveLegacy).Methods("POST", "GET")
 	r.HandleFunc("/bookmark", CreateArchiveLegacy).Methods("POST", "GET")
 	r.HandleFunc("/add", CreateArchiveLegacy).Methods("POST", "GET")
+
+	// Handle static files
+	statikFS, err := fs.New()
+	if err != nil {
+		log.Fatal("statik fs", err)
+	}
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(statikFS)))
 
 	r.NotFoundHandler = http.HandlerFunc(NotFoundPage)
 
@@ -57,6 +66,6 @@ func RespondInvalidRequestJson(w http.ResponseWriter, data interface{}) {
 func RespondSuccessTemplate(w http.ResponseWriter, r *http.Request, page string, data interface{}) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/html")
-	view := views.NewView("default", page)
+	view := utils.NewView("default", page)
 	view.Render(w, r, data)
 }
