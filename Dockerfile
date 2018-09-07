@@ -42,6 +42,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o /app .
 # Creating an empty container
 FROM scratch
 
+# Get the trusted CA certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
 # Copy our executable from the Go builder container
 COPY --from=builder /app ./
 
