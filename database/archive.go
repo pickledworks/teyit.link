@@ -31,6 +31,22 @@ type Archive struct {
 	DeletedAt       *time.Time `sql:"index"`
 }
 
+
+func (a Archive) GetAsPublic() ArchivePublic {
+	public := ArchivePublic{
+		Slug:       a.Slug,
+		RequestUrl: a.RequestUrl,
+	}
+
+	if a.ArchivedAt != nil {
+		public.Meta = ArchivePublicMeta{a.MetaTitle, a.MetaDescription, a.MetaImage}
+		public.ArchivedAt = utils.NullableTime{Time: *a.ArchivedAt}
+	}
+
+	return public
+}
+
+
 type ArchivePublic struct {
 	Slug       string             `json:"slug"`
 	RequestUrl string             `json:"request_url"`
@@ -53,8 +69,8 @@ type ArchiveSearchParams struct {
 }
 
 type CheckPreviousArchivesResponse struct {
-	Count          int        `json:"count"`
-	LastArchivedAt *time.Time `json:"last_archived_at"`
+	Count       int     `json:"count"`
+	LastArchive Archive `json:"last_archived_at"`
 }
 
 var UrlValidationError = errors.New("invalidurl")
@@ -82,8 +98,12 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		Slug:       GenerateArchiveSlug(),
 	}
 
-	_, err = govalidator.ValidateStruct(archive)
+	isValidRequestUrl, err := govalidator.ValidateStruct(archive)
 	if err != nil {
+		return nil, UrlValidationError
+	}
+
+	if isValidRequestUrl != true {
 		return nil, UrlValidationError
 	}
 
@@ -169,36 +189,22 @@ func SaveArchive(archive *Archive) {
 }
 
 func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse, error) {
-	var archives []Archive
-	var last Archive
+	var archives []*Archive
+	var last *Archive
 
-	db := GetDB().Select("archived_at").Where("request_url = ?", requestUrl)
+	db := GetDB().Where("request_url = ?", requestUrl).Order("created_at desc")
 	db.Find(&archives)
 
 	count := len(archives)
 	if count > 0 {
 		last = archives[0]
 	} else {
-		nilTime := time.Time{}
-		last = Archive{ArchivedAt: &nilTime}
+		last = nil
 	}
 
 	return CheckPreviousArchivesResponse{
 		count,
-		last.ArchivedAt,
+		*last,
 	}, nil
 }
 
-func GetArchiveAsArchivePublic(archive *Archive) ArchivePublic {
-	public := ArchivePublic{
-		Slug:       archive.Slug,
-		RequestUrl: archive.RequestUrl,
-	}
-
-	if archive.ArchivedAt != nil {
-		public.Meta = ArchivePublicMeta{archive.MetaTitle, archive.MetaDescription, archive.MetaImage}
-		public.ArchivedAt = utils.NullableTime{Time: *archive.ArchivedAt}
-	}
-
-	return public
-}

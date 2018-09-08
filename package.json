@@ -6,7 +6,10 @@
   "scripts": {
     "clean": "rm -rf public/app.js public/app.map",
     "prebuild": "npm run clean",
-    "build": "parcel build client/app.js --global TeyitLink no-cache --out-dir public --out-file app.js"
+    "prebuild-only": "npm run prebuild",
+    "build-only": "parcel build client/app.js --global TeyitLink no-cache --out-dir public --out-file app.js",
+    "build": "npm run build-only",
+    "postbuild": "go generate main.go"
   },
   "repository": {
     "type": "git",
@@ -26,6 +29,10 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "preact": "^8.3.1"
+    "moment": "^2.22.2",
+    "preact": "^8.3.1",
+    "react": "^16.5.0",
+    "react-dom": "^16.5.0",
+    "react-modal": "^3.5.1"
   }
 }

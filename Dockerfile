@@ -8,7 +8,7 @@ RUN npm install
 COPY client client
 COPY public public
 
-RUN npm run build
+RUN npm run build-only
 
 # Second, we need to build the backend application
 # Copied and modified from https://gist.github.com/pierreprinetti/8a9a0f4602dc4e0b95ad685edddfb5ae

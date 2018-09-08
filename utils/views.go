@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"github.com/gorilla/csrf"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -46,7 +45,6 @@ func NewView(layout string, files ...string) *View {
 func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	return v.Template.ExecuteTemplate(w, v.Layout,  map[string]interface{}{
 		"data": data,
-		"csrf": csrf.TemplateField(r),
 	})
 }
 
@@ -66,7 +64,6 @@ func addTemplatePath(files []string) {
 	for i, f := range files {
 		files[i] = TemplateDir + f
 	}
-
 }
 
 func addTemplateExt(files []string) {

@@ -1,19 +1,26 @@
-import { h, render } from 'preact';
+import React from "react";
+import ReactDOM from "react-dom";
+
 import ArchiveInput from './ArchiveInput';
+import AlreadyArchivedModal from './AlreadyArchivedModal';
 import Api from './api';
 
 window.Api = Api;
 
-const ArchiveInputNode = document.getElementById('tl-archive-input');
-if (ArchiveInputNode) {
-    render(<ArchiveInput />, ArchiveInputNode, ArchiveInputNode.lastChild);
+if (Api.GetLocalData("RENDER_ARCHIVE_INPUT", false)) {
+    ReactDOM.render(<ArchiveInput />, document.getElementById('tl-archive-input'));
 }
 
-const inProgressSlug = window["ARCHIVE_IN_PROGRESS"];
-if (inProgressSlug) {
-    Api.RefreshWhenArchived(inProgressSlug);
+if (Api.GetLocalData("ARCHIVE_IN_PROGRESS", false)) {
+    Api.RefreshWhenArchived(Api.GetLocalData("ARCHIVE").slug);
 }
 
+if (Api.GetLocalData("SHOW_ALREADY_ARCHIVED_MODAL", false)) {
+    ReactDOM.render(
+        <AlreadyArchivedModal {...Api.GetLocalData("ARCHIVE", {}) } />,
+        document.getElementById('tl-already-archived-modal')
+    );
+}
 
 // Google Analytics
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

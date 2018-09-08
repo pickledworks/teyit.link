@@ -1,4 +1,4 @@
-import {h, Component} from 'preact';
+import React, {Component} from 'react';
 import api from './api';
 
 export default class ArchiveInput extends Component {
@@ -18,16 +18,7 @@ export default class ArchiveInput extends Component {
         e.preventDefault();
 
         const { requestUrl } = this.state;
-        api.CountPreviousArchives(requestUrl, "24h").then(({count, last_archived_at}) => {
-            let ask = true;
-            if (count > 0) {
-                ask = confirm(`Son 24 saatte bu adres ${count} kez linklenmis. Linklemek istediginize emin misiniz?`);
-            }
-
-            if (ask) {
-                api.CreateArchive(this.state.requestUrl).then((resp) => window.location = `/${resp.slug}`);
-            }
-        });
+        api.CreateArchiveAndRedirect(requestUrl);
     }
 
     render() {

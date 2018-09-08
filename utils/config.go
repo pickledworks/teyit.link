@@ -8,8 +8,12 @@ import (
 
 // Config for the application
 type Config struct {
+	// Env. to run in, this changed how static files are handled etc.
+	Env string
 	// Server address to bind
 	ServerAddr string
+	// Base URL to add when generating URL's (for example for redirection after archiving)
+	BaseUrl string
 	// Which dialect to pass to GORM (defaults to "mysql")
 	DbDialect string
 	// Database connection URI (defaults to "link:root@/teyitlink", see README)
@@ -38,8 +42,14 @@ func InitConfig() *Config {
 }
 
 func (c *Config) setDefaults() {
+	if c.Env == "" {
+		c.Env = "development"
+	}
 	if c.ServerAddr == "" {
 		c.ServerAddr = "0.0.0.0:8080"
+	}
+	if c.BaseUrl == "" {
+		c.BaseUrl = "https://teyit.link"
 	}
 	if c.DbDialect == "" {
 		c.DbDialect = "mysql"
