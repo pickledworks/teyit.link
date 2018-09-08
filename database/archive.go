@@ -167,7 +167,7 @@ func FindArchives(params ArchiveSearchParams) ([]Archive, error) {
 		db = db.Where("archived_at > ?", params.After)
 	}
 
-	db.Where("archived_at is not null").Find(&archives)
+	db.Where("archived_at is not null").Order("created_at desc").Find(&archives)
 
 	return archives, nil
 }
@@ -190,21 +190,18 @@ func SaveArchive(archive *Archive) {
 
 func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse, error) {
 	var archives []*Archive
-	var last *Archive
 
 	db := GetDB().Where("request_url = ?", requestUrl).Order("created_at desc")
 	db.Find(&archives)
 
 	count := len(archives)
+
+	resp := CheckPreviousArchivesResponse{Count: count}
+
 	if count > 0 {
-		last = archives[0]
-	} else {
-		last = nil
+		resp.LastArchive = *archives[0]
 	}
 
-	return CheckPreviousArchivesResponse{
-		count,
-		*last,
-	}, nil
+	return resp, nil
 }
 

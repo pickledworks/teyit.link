@@ -50,6 +50,7 @@ func createArchiveAction(r *http.Request) (*database.Archive, bool, error) {
 
 	if force != true {
 		previous, err := database.CountArchivesByRequestUrl(requestUrl)
+
 		if err != nil {
 			return nil, false, err
 		}
