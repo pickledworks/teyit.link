@@ -22,7 +22,7 @@ public/app.js
 public/app.map
 /vendor
 /statik
-
+/main
 ## Binaries for programs and plugins
 *.exe
 *.exe~
