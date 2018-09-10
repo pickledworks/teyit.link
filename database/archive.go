@@ -31,8 +31,7 @@ type Archive struct {
 	DeletedAt       *time.Time `sql:"index"`
 }
 
-
-func (a Archive) GetAsPublic() ArchivePublic {
+func (a *Archive) GetAsPublic() ArchivePublic {
 	public := ArchivePublic{
 		Slug:       a.Slug,
 		RequestUrl: a.RequestUrl,
@@ -73,7 +72,7 @@ type CheckPreviousArchivesResponse struct {
 	LastArchive Archive `json:"last_archived_at"`
 }
 
-var UrlValidationError = errors.New("invalidurl")
+var UrlValidationError = errors.New("invalid url")
 
 func CreateArchive(requestUrl string) (*Archive, error) {
 	if requestUrl == "" {
@@ -172,7 +171,7 @@ func FindArchives(params ArchiveSearchParams) ([]Archive, error) {
 	return archives, nil
 }
 
-var ArchiveNotFoundError = errors.New("archivenotfound")
+var ArchiveNotFoundError = errors.New("archive not found")
 
 func GetArchive(slug string) (*Archive, error) {
 	var archive Archive

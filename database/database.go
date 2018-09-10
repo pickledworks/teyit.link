@@ -26,7 +26,6 @@ func InitDB(dialect string, dbUri string) *gorm.DB {
 }
 
 func Migrate(db *gorm.DB) {
-	log.Print("Migrating the database...")
 	db.AutoMigrate(&Archive{})
 }
 

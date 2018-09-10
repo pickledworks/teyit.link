@@ -15,7 +15,7 @@ type ShowArchiveTemplateVariables struct {
 	ArchiveData              template.JS
 }
 
-func ShowArchive(w http.ResponseWriter, r *http.Request) {
+func ShowArchiveHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 
@@ -41,7 +41,7 @@ func ShowArchive(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ShowArchiveJson(w http.ResponseWriter, r *http.Request) {
+func ShowArchiveApiHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 
@@ -53,7 +53,12 @@ func ShowArchiveJson(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RedirectToArchiveScreenshot(w http.ResponseWriter, r *http.Request) {
+// Instead of hard linking the AWS S3 resource URLs, we define a redirection with a presigned links
+// These links have close expire dates, discouraging use of direct links in API integrations
+// This way if we change storage providers, API integrations would still work fine
+
+// This is for the snapshot, which is the inlined HTML of the archive
+func redirectToArchiveResource(resource string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 
@@ -61,20 +66,17 @@ func RedirectToArchiveScreenshot(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		NotFoundPage(w, r)
 	} else {
-		url := utils.PresignArchiveResource(archive.ArchiveID, "screenshot.png")
+		url := utils.PresignArchiveResource(archive.ArchiveID, resource)
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 }
 
-func RedirectToArchiveSnapshot(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	slug := vars["slug"]
+// This is for the screenshot
+func ShowArchiveScreenshotHandler(w http.ResponseWriter, r *http.Request) {
+	redirectToArchiveResource("screenshot.png", w, r)
+}
 
-	archive, err := database.GetArchive(slug)
-	if err != nil {
-		NotFoundPage(w, r)
-	} else {
-		url := utils.PresignArchiveResource(archive.ArchiveID, "index.html")
-		http.Redirect(w, r, url, http.StatusFound)
-	}
+// This is for the snapshot, which is the inlined HTML of the archive
+func ShowArchiveSnapshotHandler(w http.ResponseWriter, r *http.Request) {
+	redirectToArchiveResource("index.html", w, r)
 }

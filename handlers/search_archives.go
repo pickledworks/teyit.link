@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/araddon/dateparse"
 	"gitlab.com/nod/teyit/link/database"
-	"log"
 	"net/http"
 )
 
@@ -22,13 +21,11 @@ func processSearchArchives(r *http.Request) ([]database.Archive, error) {
 	after, _ := dateparse.ParseAny(r.FormValue("after"))
 	before, _ := dateparse.ParseAny(r.FormValue("before"))
 
-	log.Println(after, before, r.FormValue("after"))
 	searchParams := database.ArchiveSearchParams{
 		Query: query,
 		After: after,
 		Before: before,
 	}
 
-	log.Println(searchParams)
 	return database.FindArchives(searchParams)
 }

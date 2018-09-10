@@ -36,7 +36,7 @@ func main() {
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
+			log.Panic(err)
 		} else {
 			log.Printf("Server started")
 		}

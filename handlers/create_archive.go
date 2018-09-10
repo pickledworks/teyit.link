@@ -10,12 +10,12 @@ import (
 	"strings"
 )
 
-func CreateArchive(w http.ResponseWriter, r *http.Request) {
-	archive, fresh, err := createArchiveAction(r)
+func CreateArchiveHandler(w http.ResponseWriter, r *http.Request) {
+	archive, fresh, err := createArchive(r)
 
 	if err != nil {
-		log.Println("Error while creating archive", err)
 		RespondInternalServerError(w, err)
+		return
 	}
 
 	config := utils.GetConfig()
@@ -29,12 +29,12 @@ func CreateArchive(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, returnUrl.String(), http.StatusFound)
 }
 
-func CreateArchiveJson(w http.ResponseWriter, r *http.Request) {
-	archive, fresh, err := createArchiveAction(r)
+func CreateArchiveApiHandler(w http.ResponseWriter, r *http.Request) {
+	archive, fresh, err := createArchive(r)
 
 	if err != nil {
-		log.Println("Error while creating archive", err)
 		RespondInternalServerErrorJson(w, err)
+		return
 	}
 
 	if fresh == true {
@@ -44,7 +44,7 @@ func CreateArchiveJson(w http.ResponseWriter, r *http.Request) {
 	RespondJson(w, archive.GetAsPublic())
 }
 
-func createArchiveAction(r *http.Request) (*database.Archive, bool, error) {
+func createArchive(r *http.Request) (*database.Archive, bool, error) {
 	requestUrl := r.FormValue("request_url")
 	force, err := strconv.ParseBool(r.FormValue("force"))
 
@@ -52,6 +52,7 @@ func createArchiveAction(r *http.Request) (*database.Archive, bool, error) {
 		previous, err := database.CountArchivesByRequestUrl(requestUrl)
 
 		if err != nil {
+			log.Println("Error while counting previous archives", err)
 			return nil, false, err
 		}
 

@@ -14,23 +14,30 @@ import (
 func CreateRoutes() *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", ShowHomepage).Methods("GET")
+	// Handle homepage inline
+	r.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
+			RespondSuccessTemplate(w, r, "homepage", nil)
+	}).Methods("GET")
+
 	r.HandleFunc("/search", SearchArchives).Methods("GET")
 	r.HandleFunc("/api/search", SearchArchivesJson).Methods("GET")
 
-	r.HandleFunc("/api/archive", CreateArchiveJson).Methods("POST", "GET")
-
-	r.HandleFunc("/{slug}", ShowArchive).Methods("GET")
-	r.HandleFunc("/{slug}/screenshot", RedirectToArchiveScreenshot).Methods("GET")
-	r.HandleFunc("/{slug}/snapshot", RedirectToArchiveSnapshot).Methods("GET")
-	r.HandleFunc("/{slug}", ShowArchiveJson).Methods("GET").HeadersRegexp("Content-Type", "application/json")
-	r.HandleFunc("/api/archives/{slug}", ShowArchiveJson).Methods("GET")
 
 	// below are legacy links from v1, we plan to phase these out
 	// but we can't immediately because we suspect programmatic usage
-	r.HandleFunc("/new", CreateArchive).Methods("POST", "GET")
-	r.HandleFunc("/bookmark", CreateArchive).Methods("POST", "GET")
-	r.HandleFunc("/add", CreateArchive).Methods("POST", "GET")
+	r.HandleFunc("/new", CreateArchiveHandler).Methods("POST", "GET")
+	r.HandleFunc("/bookmark", CreateArchiveHandler).Methods("POST", "GET")
+	r.HandleFunc("/add", CreateArchiveHandler).Methods("POST", "GET")
+	// Next up, the current API handler for creating archives
+	r.HandleFunc("/api/archive", CreateArchiveApiHandler).Methods("POST", "GET")
+
+	// Display the archive
+	r.HandleFunc("/{slug}", ShowArchiveHandler).Methods("GET")
+	r.HandleFunc("/{slug}", ShowArchiveApiHandler).Methods("GET").HeadersRegexp("Content-Type", "application/json")
+	r.HandleFunc("/api/archives/{slug}", ShowArchiveApiHandler).Methods("GET")
+
+	r.HandleFunc("/{slug}/screenshot", ShowArchiveScreenshotHandler).Methods("GET")
+	r.HandleFunc("/{slug}/snapshot", ShowArchiveSnapshotHandler).Methods("GET")
 
 	// Handle static files
 	var staticServer http.Handler
