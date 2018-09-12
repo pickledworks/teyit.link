@@ -7,6 +7,7 @@
 
         <div class="col-sm-8">
             <div class="row">
+{{if .data.Archive.ArchivedAt}}
                 <p>
                     Bu teyit.link arşivi <a href="{{.data.Archive.RequestUrl}}">{{.data.Archive.RequestUrl}}</a>
                     adresinden <span id="archive-created-at">{{.data.Archive.CreatedAt}}</span> tarihinde kaydedilmiş.
@@ -16,6 +17,12 @@
                     veya <a href="/{{.data.Archive.Slug}}/screenshot?dl=1">JPG</a>
                     formatlarında indirebilirsiniz.
                 </p>
+{{ else }}
+                <h2>
+                    <a href="{{.data.Archive.RequestUrl}}">{{.data.Archive.RequestUrl}}</a> için arşivleme başladı.
+                    Sayfa arşivlendiğinde otomatik olarak yönlendirileceksiniz.
+                </h2>
+{{ end }}
             </div>
         </div>
 
@@ -29,25 +36,23 @@
     </div>
 </div><!-- .container -->
 
+{{if .data.Archive.ArchivedAt}}
 <div class="capture-screen">
     <div class="container">
         <span class="cs-link">Sayfa Önizlemesi</span>
-    {{if .data.Archive.ArchivedAt}}
+
         <iframe src="/{{.data.Archive.Slug}}/snapshot"
                 width="100%" height="1200px" frameborder="0" class="site-source">
         </iframe>
-    {{if .data.ShowAlreadyArchivedModal }}
-        <div id="tl-already-archived-modal"></div>
-        <script>window["TL_DATA"]["SHOW_ALREADY_ARCHIVED_MODAL"] = true;</script>
-    {{end}}
-    {{else}}
-        <div width="100%" height="1200px" class="site-source">
-            <h2>Arşivleme devam ediyor. Tamamlandığında sayfa otomatik olarak yenilecek.</h2>
-        </div>
-        <script>window["TL_DATA"]["ARCHIVE_IN_PROGRESS"] = true;</script>
-    {{end}}
     </div>
-</div><!-- .capture-screen -->
+</div>
+    {{if .data.ShowAlreadyArchivedModal }}
+    <div id="tl-already-archived-modal"></div>
+    <script>window["TL_DATA"]["SHOW_ALREADY_ARCHIVED_MODAL"] = true;</script>
+    {{end}}
+{{else}}
+<script>window["TL_DATA"]["ARCHIVE_IN_PROGRESS"] = true;</script>
+{{end}}
 
 <script>
     window["TL_DATA"]["PAGE"] = "archive_show";
