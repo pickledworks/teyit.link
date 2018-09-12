@@ -58,15 +58,24 @@ func ShowArchiveApiHandler(w http.ResponseWriter, r *http.Request) {
 // This way if we change storage providers, API integrations would still work fine
 
 // This is for the snapshot, which is the inlined HTML of the archive
-func redirectToArchiveResource(resource string, w http.ResponseWriter, r *http.Request) {
+func redirectToArchiveResource(file string, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
+	var download bool
+	if r.FormValue("dl") == "1" {
+		download = true
+	}
 
 	archive, err := database.GetArchive(slug)
 	if err != nil {
 		NotFoundPage(w, r)
 	} else {
-		url := utils.PresignArchiveResource(archive.ArchiveID, resource)
+		url := utils.PresignArchiveResource(&utils.ArchiveResourceRequest{
+			ArchiveSlug: archive.Slug,
+			ArchiveID: archive.ArchiveID.String(),
+			File: file,
+			Download: download,
+		})
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 }

@@ -43,6 +43,9 @@ a:hover {
 	z-index: 10;
 }
 
+.archive-input-error {
+	padding-top: 70px;
+}
 .fk-input {
 	padding: 15px 21px;
 }

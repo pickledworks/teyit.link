@@ -5,23 +5,25 @@
         {{template "logo" .}}
         </div>
 
-        <div class="col-sm-5">
+        <div class="col-sm-8">
             <div class="row">
-                <b>Kayıt Edilen Adres:</b>
-                <a href="{{.data.Archive.RequestUrl}}" style="width: 100%; font-size: 13px" class="dib">
-                    {{.data.Archive.RequestUrl}}
-                </a> {{.data.Archive.MetaTitle}}
+                <p>
+                    Bu teyit.link arşivi <a href="{{.data.Archive.RequestUrl}}">{{.data.Archive.RequestUrl}}</a>
+                    adresinden <span id="archive-created-at">{{.data.Archive.CreatedAt}}</span> tarihinde kaydedilmiş.
+                </p>
+                <p>
+                    İsterseniz arşivi <a href="/{{.data.Archive.Slug}}/snapshot?dl=1">HTML</a>
+                    veya <a href="/{{.data.Archive.Slug}}/screenshot?dl=1">JPG</a>
+                    formatlarında indirebilirsiniz.
+                </p>
             </div>
-        </div>
-
-        <div class="col-sm-3">
-            <div><strong>Tarih:</strong></div>
-            <div><span>{{.data.Archive.CreatedAt}}</span></div>
         </div>
 
         <div class="col-sm-2 pull-right">
 {{if .data.Archive.ArchivedAt}}
-            <img src="/{{.data.Archive.Slug}}/screenshot" alt="{{.data.Archive.MetaTitle}}" height="100px" />
+            <a href="/{{.data.Archive.Slug}}/screenshot" target="_blank">
+                <img src="/{{.data.Archive.Slug}}/screenshot" alt="{{.data.Archive.MetaTitle}}" height="100px" />
+            </a>
 {{end}}
         </div>
     </div>
@@ -48,7 +50,9 @@
 </div><!-- .capture-screen -->
 
 <script>
+    window["TL_DATA"]["PAGE"] = "archive_show";
     window["TL_DATA"]["ARCHIVE"] = {{.data.ArchiveData}};
+    document.title = {{.data.Archive.MetaTitle}};
 </script>
 
 {{end}}

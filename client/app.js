@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import moment from 'moment';
 
 import ArchiveInput from './ArchiveInput';
 import AlreadyArchivedModal from './AlreadyArchivedModal';
@@ -20,6 +21,14 @@ if (Api.GetLocalData("SHOW_ALREADY_ARCHIVED_MODAL", false)) {
         <AlreadyArchivedModal {...Api.GetLocalData("ARCHIVE", {}) } />,
         document.getElementById('tl-already-archived-modal')
     );
+}
+
+if (Api.GetLocalData("PAGE", "") === "archive_show") {
+    const archive = Api.GetLocalData("ARCHIVE");
+    if (archive.archived_at) {
+        const archivedAt = moment(archive.archived_at).format('LL LTS');
+        document.getElementById("archive-created-at").innerText = archivedAt;
+    }
 }
 
 // Google Analytics

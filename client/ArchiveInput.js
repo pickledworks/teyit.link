@@ -4,7 +4,7 @@ import api from './api';
 export default class ArchiveInput extends Component {
     constructor(props) {
         super(props);
-        this.state = {requestUrl: '', processing: false, error: null};
+        this.state = {requestUrl: '', processing: false, err: null};
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -18,23 +18,30 @@ export default class ArchiveInput extends Component {
         this.setState({processing: true});
         e.preventDefault();
 
-        const { requestUrl } = this.state;
-        api.CreateArchiveAndRedirect(requestUrl).catch(() => this.setState({error: true}));
+        const {requestUrl} = this.state;
+        api.CreateArchiveAndRedirect(requestUrl).catch((err) => {
+            this.setState({err: true, processing: false});
+        });
     }
 
     render() {
+        const {requestUrl, processing, err} = this.state;
         return (
             <form onSubmit={this.handleSubmit}>
-                <div class="form-group">
+                <div className={`form-group ${err ? "has-error has-feedback" : ""}`}>
                     <input className={`flipkart-navbar-input col-xs-10 fk-input`} type="url"
                            placeholder="Kaydetmek istediginiz adres..." name="request_url"
-                           value={this.state.requestUrl} onChange={this.handleChange}
-                           required={true} disabled={this.state.processing}
+                           value={requestUrl} onChange={this.handleChange}
+                           required={true} disabled={processing}
                     />
                     <button className="flipkart-navbar-button col-xs-2 fk-button"
                             disabled={this.state.processing} type="submit">
-                        {this.state.processing ? "Arşivleniyor..." : "Arşivle"}
+                        {processing ? "Arşivleniyor..." : "Arşivle"}
                     </button>
+
+                    {err ? <div className="alert alert-danger archive-input-error" role="alert">
+                        Bir hata oluştu, lütfen tekrar deneyin.
+                    </div> : ""}
                 </div>
             </form>
         )
