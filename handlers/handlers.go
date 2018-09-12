@@ -15,13 +15,12 @@ func CreateRoutes() *mux.Router {
 	r := mux.NewRouter()
 
 	// Handle homepage inline
-	r.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
-			RespondSuccessTemplate(w, r, "homepage", nil)
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		RespondSuccessTemplate(w, r, "homepage", nil)
 	}).Methods("GET")
 
 	r.HandleFunc("/search", SearchArchives).Methods("GET")
 	r.HandleFunc("/api/search", SearchArchivesJson).Methods("GET")
-
 
 	// below are legacy links from v1, we plan to phase these out
 	// but we can't immediately because we suspect programmatic usage
@@ -78,29 +77,30 @@ func RespondJson(w http.ResponseWriter, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// I (@batuhan) absolutely hate cryptic or non-descriptive error messages so this is a
-// @TODO: Make sure we handle each error individually with helpful error messages
+func RespondError(w http.ResponseWriter, r *http.Request, err error) {
+	var errText string
+	var statusCode int
 
-func RespondInternalServerError(w http.ResponseWriter, _ error) {
-	w.WriteHeader(http.StatusInternalServerError)
+	switch err {
+	case utils.ErrorUrlInvalid, utils.ErrorUrlBlocked, utils.ErrorUrlSchemeInvalid, utils.ErrorUrlEmptyUrl:
+		statusCode = http.StatusBadRequest
+		errText = err.Error()
+	default:
+		statusCode = http.StatusInternalServerError
+		errText = "internal server error"
+	}
+
+	w.WriteHeader(statusCode)
+
+	if r.Header.Get("Content-Type") == "application/json" {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"error": errText,
+		})
+		return
+	}
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "<h2>Internal Server Error. Please try again.</h2>")
-}
-
-func RespondInternalServerErrorJson(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"error": "internal server error",
-	})
-}
-
-func RespondBadRequestErrorJson(w http.ResponseWriter, data interface{}) {
-	w.WriteHeader(http.StatusBadRequest)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"error": data,
-	})
+	fmt.Fprintf(w, "Error occurred: %s", errText)
 }
 
 func RespondSuccessTemplate(w http.ResponseWriter, r *http.Request, page string, data interface{}) {

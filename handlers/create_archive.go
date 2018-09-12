@@ -14,7 +14,7 @@ func CreateArchiveHandler(w http.ResponseWriter, r *http.Request) {
 	archive, fresh, err := createArchive(r)
 
 	if err != nil {
-		RespondInternalServerError(w, err)
+		RespondError(w, r, err)
 		return
 	}
 
@@ -33,11 +33,7 @@ func CreateArchiveApiHandler(w http.ResponseWriter, r *http.Request) {
 	archive, fresh, err := createArchive(r)
 
 	if err != nil {
-		if err == database.UrlValidationError {
-			RespondBadRequestErrorJson(w, err.Error())
-		} else {
-			RespondInternalServerErrorJson(w)
-		}
+		RespondError(w, r, err)
 		return
 	}
 
@@ -51,7 +47,7 @@ func CreateArchiveApiHandler(w http.ResponseWriter, r *http.Request) {
 func createArchive(r *http.Request) (*database.Archive, bool, error) {
 	requestUrl := r.FormValue("request_url")
 	callbackUrl := r.FormValue("callback_url")
-	force, err := strconv.ParseBool(r.FormValue("force"))
+	force, _ := strconv.ParseBool(r.FormValue("force"))
 
 	if force != true {
 		previous, err := database.CountArchivesByRequestUrl(requestUrl)
