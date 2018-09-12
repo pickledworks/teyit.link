@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"errors"
 	"math/rand"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -32,4 +35,30 @@ func (t NullableTime) MarshalJSON() ([]byte, error) {
 	} else {
 		return t.Time.MarshalJSON()
 	}
+}
+
+var (
+	ErrorUrlEmptyUrl = errors.New("empty url")
+	ErrorUrlInvalid = errors.New("invalid url")
+	ErrorUrlSchemeInvalid = errors.New("invalid url scheme, must be http or https")
+	ErrorUrlBlocked = errors.New("invalid url")
+)
+
+func ValidateUrl(urlStr string) error {
+	if urlStr == "" {
+		return ErrorUrlEmptyUrl
+	}
+
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		return ErrorUrlInvalid
+	} else if u.Scheme == "" || u.Host == "" {
+		return ErrorUrlInvalid
+	} else if u.Scheme != "http" && u.Scheme != "https" {
+		return ErrorUrlSchemeInvalid
+	} else if strings.Contains(u.Host, "teyit.link") {
+		return ErrorUrlBlocked
+	}
+
+	return nil
 }
