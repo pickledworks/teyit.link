@@ -87,10 +87,20 @@ func RespondInternalServerError(w http.ResponseWriter, _ error) {
 	fmt.Fprintf(w, "<h2>Internal Server Error. Please try again.</h2>")
 }
 
-func RespondInternalServerErrorJson(w http.ResponseWriter, data interface{}) {
+func RespondInternalServerErrorJson(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": "internal server error",
+	})
+}
+
+func RespondBadRequestErrorJson(w http.ResponseWriter, data interface{}) {
+	w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": data,
+	})
 }
 
 func RespondSuccessTemplate(w http.ResponseWriter, r *http.Request, page string, data interface{}) {

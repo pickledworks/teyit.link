@@ -1,12 +1,15 @@
 package database
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nod/teyit/link/utils"
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -18,7 +21,8 @@ import (
 // gen:qs
 type Archive struct {
 	ID              uint      `gorm:"primary_key"`
-	RequestUrl      string    `gorm:"size:2048",valid:"url"`
+	RequestUrl      string    `gorm:"size:2048",valid:"requrl,required"`
+	CallbackUrl     string    `gorm:"-",valid:"url",valid:"requrl,required"`
 	ArchiveID       uuid.UUID `gorm:"unique_index"`
 	Slug            string    `gorm:"unique_index"`
 	MetaTitle       string
@@ -44,7 +48,6 @@ func (a *Archive) GetAsPublic() ArchivePublic {
 
 	return public
 }
-
 
 type ArchivePublic struct {
 	Slug       string             `json:"slug"`
@@ -72,39 +75,25 @@ type CheckPreviousArchivesResponse struct {
 	LastArchive Archive `json:"last_archived_at"`
 }
 
-var UrlValidationError = errors.New("invalid url")
+var UrlValidationError = errors.New("invalid request_url or callback_url")
+var SelfArchiveError = errors.New("teyit.link urls can't be archived")
 
-func CreateArchive(requestUrl string) (*Archive, error) {
-	if requestUrl == "" {
+func CreateArchive(archive *Archive) (*Archive, error) {
+	// We only validate the URL's
+	isValidArchive, err := govalidator.ValidateStruct(&archive)
+	if err != nil || isValidArchive != true {
 		return nil, UrlValidationError
 	}
+	log.Println(isValidArchive, err)
 
-	url, err := url.Parse(requestUrl)
-
-	if err != nil {
-		return nil, UrlValidationError
-	}
-
+	// URL's are already validated so we can ignore the error here
+	url, _ := url.Parse(archive.RequestUrl)
 	if strings.Contains(url.Host, "teyit.link") {
-		return nil, UrlValidationError
+		return nil, SelfArchiveError
 	}
 
-	archiveId := uuid.NewV4()
-
-	archive := Archive{
-		ArchiveID:  archiveId,
-		RequestUrl: requestUrl,
-		Slug:       GenerateArchiveSlug(),
-	}
-
-	isValidRequestUrl, err := govalidator.ValidateStruct(archive)
-	if err != nil {
-		return nil, UrlValidationError
-	}
-
-	if isValidRequestUrl != true {
-		return nil, UrlValidationError
-	}
+	archive.ArchiveID = uuid.NewV4()
+	archive.Slug = GenerateArchiveSlug()
 
 	db := GetDB()
 	db.NewRecord(&archive)
@@ -115,7 +104,7 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
 
 		if err != nil {
-			log.Println("Error", err)
+			log.Println("Error running lambda", err)
 			archive.FailedAt = &now
 		} else {
 			archive.MetaTitle = result.Title
@@ -124,10 +113,25 @@ func CreateArchive(requestUrl string) (*Archive, error) {
 			archive.ArchivedAt = &now
 		}
 
-		SaveArchive(&archive)
+		db.Save(&archive)
+
+		if archive.CallbackUrl != "" {
+			body, err := json.Marshal(archive.GetAsPublic())
+			req, err := http.NewRequest("POST", archive.CallbackUrl, bytes.NewBuffer(body))
+			req.Header.Set("X-Teyit-Link-Version", "v2.0.0")
+			req.Header.Set("Content-Type", "application/json")
+
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Println("error when triggering callback url", err)
+			} else {
+				defer resp.Body.Close()
+			}
+		}
 	}()
 
-	return &archive, nil
+	return archive, nil
 }
 
 func GenerateArchiveSlug() string {
@@ -183,10 +187,6 @@ func GetArchive(slug string) (*Archive, error) {
 	}
 }
 
-func SaveArchive(archive *Archive) {
-	GetDB().Save(&archive)
-}
-
 func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse, error) {
 	var archives []*Archive
 
@@ -203,4 +203,3 @@ func CountArchivesByRequestUrl(requestUrl string) (CheckPreviousArchivesResponse
 
 	return resp, nil
 }
-
