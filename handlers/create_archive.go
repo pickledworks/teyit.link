@@ -62,9 +62,10 @@ func createArchive(r *http.Request) (*database.Archive, bool, error) {
 		}
 	}
 
-	archive, err := database.CreateArchive(&database.Archive{RequestUrl: requestUrl, CallbackUrl: callbackUrl})
+	archive := &database.Archive{RequestUrl: requestUrl, CallbackUrl: callbackUrl}
+	err := archive.Save(false)
+
 	if err != nil {
-		log.Println("Error while creating archive", err, requestUrl, callbackUrl, &archive)
 		return nil, false, err
 	}
 

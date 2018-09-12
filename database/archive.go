@@ -5,13 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/asaskevich/govalidator"
 	"github.com/satori/go.uuid"
 	"gitlab.com/nod/teyit/link/utils"
 	"log"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -21,8 +18,8 @@ import (
 // gen:qs
 type Archive struct {
 	ID              uint      `gorm:"primary_key"`
-	RequestUrl      string    `gorm:"size:2048",valid:"requrl,required"`
-	CallbackUrl     string    `gorm:"-",valid:"url",valid:"requrl,required"`
+	RequestUrl      string    `gorm:"size:2048"`
+	CallbackUrl     string    `gorm:"-"`
 	ArchiveID       uuid.UUID `gorm:"unique_index"`
 	Slug            string    `gorm:"unique_index"`
 	MetaTitle       string
@@ -33,6 +30,18 @@ type Archive struct {
 	ArchivedAt      *time.Time
 	FailedAt        *time.Time
 	DeletedAt       *time.Time `sql:"index"`
+}
+type ArchivePublic struct {
+	Slug       string             `json:"slug"`
+	RequestUrl string             `json:"request_url"`
+	Meta       ArchivePublicMeta  `json:"meta"`
+	ArchivedAt utils.NullableTime `json:"archived_at"`
+}
+
+type ArchivePublicMeta struct {
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Image       string `json:"image,omitempty"`
 }
 
 func (a *Archive) GetAsPublic() ArchivePublic {
@@ -49,17 +58,71 @@ func (a *Archive) GetAsPublic() ArchivePublic {
 	return public
 }
 
-type ArchivePublic struct {
-	Slug       string             `json:"slug"`
-	RequestUrl string             `json:"request_url"`
-	Meta       ArchivePublicMeta  `json:"meta"`
-	ArchivedAt utils.NullableTime `json:"archived_at"`
+func (a *Archive) Validate() error {
+	var err error
+
+	err = utils.ValidateUrl(a.RequestUrl)
+	if err != nil {
+		return err
+	}
+
+	err = utils.ValidateUrl(a.CallbackUrl)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-type ArchivePublicMeta struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Image       string `json:"image"`
+func (a *Archive) Save(skipValidation bool) error {
+	if skipValidation != true {
+		err := a.Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	a.ArchiveID = uuid.NewV4()
+	a.Slug = generateArchiveSlug()
+
+	db := GetDB()
+	db.NewRecord(&a)
+	db.Create(&a)
+
+	go a.RunLambda()
+	return nil
+}
+
+func (a *Archive) RunLambda() {
+	result, err := utils.RunArchiveLambda(a.ArchiveID, a.RequestUrl)
+	now := time.Now()
+
+	if err != nil {
+		log.Println("Error running lambda", err)
+		a.FailedAt = &now
+	} else {
+		a.MetaTitle = result.Title
+		a.MetaDescription = result.Description
+		a.MetaImage = result.Image
+		a.ArchivedAt = &now
+	}
+
+	GetDB().Save(&a)
+
+	if a.CallbackUrl != "" {
+		body, err := json.Marshal(a.GetAsPublic())
+		req, err := http.NewRequest("POST", a.CallbackUrl, bytes.NewBuffer(body))
+		req.Header.Set("X-Teyit-Link-Version", "v2.0.0")
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Println("error when triggering callback url", err)
+		} else {
+			defer resp.Body.Close()
+		}
+	}
 }
 
 type ArchiveSearchParams struct {
@@ -75,73 +138,14 @@ type CheckPreviousArchivesResponse struct {
 	LastArchive Archive `json:"last_archived_at"`
 }
 
-var UrlValidationError = errors.New("invalid request_url or callback_url")
-var SelfArchiveError = errors.New("teyit.link urls can't be archived")
-
-func CreateArchive(archive *Archive) (*Archive, error) {
-	// We only validate the URL's
-	isValidArchive, err := govalidator.ValidateStruct(&archive)
-	if err != nil || isValidArchive != true {
-		return nil, UrlValidationError
-	}
-	log.Println(isValidArchive, err)
-
-	// URL's are already validated so we can ignore the error here
-	url, _ := url.Parse(archive.RequestUrl)
-	if strings.Contains(url.Host, "teyit.link") {
-		return nil, SelfArchiveError
-	}
-
-	archive.ArchiveID = uuid.NewV4()
-	archive.Slug = GenerateArchiveSlug()
-
-	db := GetDB()
-	db.NewRecord(&archive)
-	db.Create(&archive)
-
-	go func() {
-		now := time.Now()
-		result, err := utils.RunArchiveLambda(archive.ArchiveID, archive.RequestUrl)
-
-		if err != nil {
-			log.Println("Error running lambda", err)
-			archive.FailedAt = &now
-		} else {
-			archive.MetaTitle = result.Title
-			archive.MetaDescription = result.Description
-			archive.MetaImage = result.Image
-			archive.ArchivedAt = &now
-		}
-
-		db.Save(&archive)
-
-		if archive.CallbackUrl != "" {
-			body, err := json.Marshal(archive.GetAsPublic())
-			req, err := http.NewRequest("POST", archive.CallbackUrl, bytes.NewBuffer(body))
-			req.Header.Set("X-Teyit-Link-Version", "v2.0.0")
-			req.Header.Set("Content-Type", "application/json")
-
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				log.Println("error when triggering callback url", err)
-			} else {
-				defer resp.Body.Close()
-			}
-		}
-	}()
-
-	return archive, nil
-}
-
-func GenerateArchiveSlug() string {
+func generateArchiveSlug() string {
 	slug := utils.RandString(7)
 
 	var count int
 	GetDB().Model(Archive{}).Where("slug = ?", slug).Limit(1).Count(&count)
 
 	if count > 0 {
-		return GenerateArchiveSlug()
+		return generateArchiveSlug()
 	}
 
 	return slug

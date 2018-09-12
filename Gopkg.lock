@@ -10,14 +10,6 @@
   revision = "cfd92a431d0efe36a1b81ca25d15b98aae4dbdb6"
 
 [[projects]]
-  digest = "1:320e7ead93de9fd2b0e59b50fd92a4d50c1f8ab455d96bc2eb083267453a9709"
-  name = "github.com/asaskevich/govalidator"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ccb8e960c48f04d6935e72476ae4a51028f9e22f"
-  version = "v9"
-
-[[projects]]
   digest = "1:3088f550d6f98d35d093eadd83d8d8a327f969114f54450df1ace35bc4b34074"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -156,7 +148,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/araddon/dateparse",
-    "github.com/asaskevich/govalidator",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/lambda",
