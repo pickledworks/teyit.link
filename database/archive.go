@@ -160,8 +160,9 @@ func generateArchiveSlug() string {
 	return slug
 }
 
-func FindArchives(params ArchiveSearchParams) ([]Archive, error) {
+func FindArchives(params ArchiveSearchParams) ([]Archive, int, error) {
 	var archives []Archive
+	var total int
 	db := GetDB()
 
 	if params.Query != "" {
@@ -183,9 +184,11 @@ func FindArchives(params ArchiveSearchParams) ([]Archive, error) {
 		db = db.Where("archived_at > ?", params.After)
 	}
 
-	db.Where("archived_at is not null").Order("created_at desc").Find(&archives)
+	db.Where("archived_at is not null").Order("created_at desc")
+	db.Model(&Archive{}).Count(&total)
+	db.Limit(params.Limit).Offset(params.Offset).Find(&archives)
 
-	return archives, nil
+	return archives, total, nil
 }
 
 var ArchiveNotFoundError = errors.New("archive not found")
