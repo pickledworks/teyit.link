@@ -129,8 +129,17 @@ type ArchiveSearchParams struct {
 	Query      string
 	Before     time.Time
 	After      time.Time
+	Limit      int
+	Offset     int
 	RequestUrl string
 	CountOnly  bool
+}
+
+type ArchiveSearchResults struct {
+	Results         []Archive
+	Total           int
+	PreviousPageUrl string
+	NextPageUrl     string
 }
 
 type CheckPreviousArchivesResponse struct {
