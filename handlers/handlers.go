@@ -69,7 +69,10 @@ func NotFoundPage(w http.ResponseWriter, r *http.Request) {
 func RespondSuccessJson(w http.ResponseWriter, data interface{}) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	encoder := json.NewEncoder(w)
+	// disables escaping of ampersand character / required for returning url query params
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(data)
 }
 
 func RespondJson(w http.ResponseWriter, data interface{}) {
