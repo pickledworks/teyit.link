@@ -26,6 +26,8 @@ type Config struct {
 	AwsRegion string
 	// the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m
 	GracefulShutdown time.Duration
+	// limit for how many results will be shown on search page
+	SearchLimit int
 }
 
 var Conf *Config
@@ -68,6 +70,9 @@ func (c *Config) setDefaults() {
 	}
 	if c.GracefulShutdown == 0 {
 		c.GracefulShutdown = time.Second * 15
+	}
+	if c.SearchLimit == 0 {
+		c.SearchLimit = 10
 	}
 }
 
