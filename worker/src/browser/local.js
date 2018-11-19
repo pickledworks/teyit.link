@@ -19,7 +19,7 @@ function guid() {
         // use chrome installed by puppeteer
     });
 
-    await index.run(browser, guid(), 'https://github.com/noddigital/teyit.link/pulls')
+    await index.run(browser, guid(), 'https://www.hurriyetemlak.com/projeler/juma-insaat/juma-plus-juma-insaat?utm_source=hurriyet_emlak&utm_medium=he_newsearch&utm_content=flat-plan-id-88&utm_campaign=juma-plus-juma-insaat')
     .then((result) => console.log(result))
     .catch((err) => console.error(err));
     await browser.close();

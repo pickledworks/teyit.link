@@ -2,7 +2,6 @@ require('dotenv').config();
 const setup = require('./browser/setup');
 const inline = require('./tasks/inline');
 const upload = require('./tasks/upload');
-const scrollHelper = require('./helpers/scroll-helper');
 const fs = require('fs');
 const AWS = require('aws-sdk');
 const validator = require('validator');
@@ -36,6 +35,11 @@ exports.handler = async (event, context, callback) => {
   }
 };
 
+const getHTML = async (page, source) => {
+  const _html = await page.evaluate('new XMLSerializer().serializeToString(document.doctype) + document.documentElement.outerHTML');
+  source.set('_html', _html);
+};
+
 const extract = async (archiveID, requestURL, source) => {
   const data = await inline(archiveID, requestURL, source);
   await upload(data.html, client, bucket, archiveID, 'index.html', 'text/html');
@@ -48,7 +52,7 @@ const extract = async (archiveID, requestURL, source) => {
 
 const screenshot = async (archiveID, page) => {
   const ssFilePath = '/tmp/' + archiveID + '.png';
-  await page.screenshot({path: ssFilePath});
+  await page.screenshot({path: ssFilePath, fullPage: true});
   const ss = fs.readFileSync(ssFilePath);
   await upload(ss, client, bucket, archiveID, 'screenshot.png', 'image/png');
 };
@@ -63,21 +67,41 @@ exports.run = async (browser, archiveID, requestURL) => {
     height: 800,
   });
 
+  const source = new Map();
+
+  page.on('requestfinished', async (request) => {
+    const saveResourceTypes = ['stylesheet', 'image', 'media', 'font'];
+    const url = await request.url();
+
+    if (
+      saveResourceTypes.includes(request.resourceType()) || url.endsWith('.svg')
+    ) {
+      const response = await request.response();
+
+      if (!response.ok()) {
+        return;
+      }
+
+      const body = await response.buffer();
+
+      if (source.has(url) || !url.startsWith('http')) {
+        return;
+      }
+
+      source.set(url, body);
+    }
+  });
+
   await page.goto(requestURL,
    {waitUntil: ['domcontentloaded', 'networkidle0']}
   );
 
-  await page.evaluate(scrollHelper);
-
-  const source = await page.evaluate('new XMLSerializer().serializeToString(document.doctype) + document.documentElement.outerHTML');
-
-  const results = await Promise.all([
-    extract(archiveID, requestURL, source),
+  await Promise.all([
     screenshot(archiveID, page),
+    getHTML(page, source),
   ]);
 
   await page.close();
 
-  const data = results[0];
-  return data;
+  return await extract(archiveID, requestURL, source);
 };
