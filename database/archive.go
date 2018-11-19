@@ -66,7 +66,10 @@ func (a *Archive) Validate() error {
 		return err
 	}
 
-	err = utils.ValidateUrl(a.CallbackUrl)
+	callbackUrl := a.CallbackUrl
+	if callbackUrl != "" {
+		err = utils.ValidateUrl(callbackUrl)
+	}
 	if err != nil {
 		return err
 	}
