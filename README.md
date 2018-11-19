@@ -25,7 +25,7 @@ You'll need to have a MySQL server running. At NOD, we use Docker containers in 
 Here is a quick setup, if you already have Docker setup on your local machine.
 
 ```bash
-docker run --name=teyitlinkdb -d -p 3306:3306 -e MYSQL_USER=link -e MYSQL_PASSWORD=root -e MYSQL_DATABASE=teyitlink mysql/mysql-server:5.7
+docker run --name=teyitlinkdb -d -p 3306:3306 -e MYSQL_USER=link -e MYSQL_PASSWORD=root -e MYSQL_DATABASE=teyitlink mysql/mysql-server:5.7 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 ```
 
 ## License
