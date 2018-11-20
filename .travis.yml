@@ -2,7 +2,12 @@ sudo: required
 
 services:
 - docker
+language: go
 
 install:
 - docker build .
 - docker images
+
+deploy:
+  provider: dokku
+  api_key: testApiKey
