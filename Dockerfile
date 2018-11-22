@@ -18,7 +18,7 @@ FROM golang:1.11 AS builder
 ADD https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 /usr/bin/dep
 RUN chmod +x /usr/bin/dep
 
-WORKDIR $GOPATH/src/gitlab.com/nod/teyit/link
+WORKDIR $GOPATH/src/github.com/noddigital/teyit.link
 COPY Gopkg.toml Gopkg.lock ./
 RUN dep ensure --vendor-only
 
