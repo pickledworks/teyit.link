@@ -17,6 +17,8 @@ import (
 
 func main() {
 	config := utils.InitConfig()
+	// initializes the bundle for rest of the programs lifetime
+	utils.InitBundle()
 
 	db := database.InitDB(config.DbDialect, config.DbUri)
 	database.Migrate(db)
