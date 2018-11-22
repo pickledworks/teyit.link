@@ -107,8 +107,10 @@ func RespondError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func RespondSuccessTemplate(w http.ResponseWriter, r *http.Request, page string, data interface{}) {
+	lang := r.FormValue("lang")
+	lang2 := r.Header.Get("Accept-Language")
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/html")
-	view := utils.NewView("default", page)
+	view := utils.NewView("default", lang, lang2, page)
 	view.Render(w, r, data)
 }

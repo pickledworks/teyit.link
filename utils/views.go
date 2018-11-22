@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"html/template"
 	"net/http"
 	"path/filepath"
@@ -23,14 +24,25 @@ type View struct {
 	Layout   string
 }
 
-func NewView(layout string, files ...string) *View {
+func NewView(layout string, lang string, lang2 string, files ...string) *View {
 	addTemplatePath(files) // variadic params are always taken as slices
 	addTemplateExt(files)  // slices are passed by reference. so changing them
 	// in another func will change original string in the slice
 
 	files = append(files, layoutFiles()...)
 
-	t, err := template.ParseFiles(files...)
+	bundle := GetBundle()
+	localizer := i18n.NewLocalizer(bundle, lang, lang2)
+	/*
+		defines localizer function for easy usage in html files
+		example usage:
+		{{localizer "Previous"}}
+	*/
+	t, err := template.New("template").Funcs(template.FuncMap{
+		"localizer": func(s string) string {
+			return localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: s})
+		},
+	}).ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +55,7 @@ func NewView(layout string, files ...string) *View {
 }
 
 func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) error {
-	return v.Template.ExecuteTemplate(w, v.Layout,  map[string]interface{}{
+	return v.Template.ExecuteTemplate(w, v.Layout, map[string]interface{}{
 		"data": data,
 	})
 }
