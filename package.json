@@ -1,5 +1,5 @@
 {
-  "name": "@teyit/link",
+  "name": "@noddigital/teyit.link",
   "version": "0.2.0",
   "description": "",
   "main": "static/app.js",
@@ -13,16 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/nod/teyit/link.git"
+    "url": "git+https://github.com/noddigital/teyit.link.git"
   },
   "author": "NOD Digital <hey@nod.digital>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/teyit/link/issues"
+    "url": "https://github.com/noddigital/teyit.link/issues"
   },
   "homepage": "https://teyit.link",
   "devDependencies": {
-    "parcel-bundler": "^1.9.7"
+    "parcel-bundler": "^1.10.3"
   },
   "publishConfig": {
     "access": "public"

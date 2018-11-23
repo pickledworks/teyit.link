@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/satori/go.uuid"
-	"gitlab.com/nod/teyit/link/utils"
+	"github.com/noddigital/teyit.link/utils"
 	"log"
 	"net/http"
 	"time"

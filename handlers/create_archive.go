@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"gitlab.com/nod/teyit/link/database"
-	"gitlab.com/nod/teyit/link/utils"
+	"github.com/noddigital/teyit.link/database"
+	"github.com/noddigital/teyit.link/utils"
 	"log"
 	"net/http"
 	"strconv"

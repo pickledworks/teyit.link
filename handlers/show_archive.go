@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"gitlab.com/nod/teyit/link/database"
-	"gitlab.com/nod/teyit/link/utils"
+	"github.com/noddigital/teyit.link/database"
+	"github.com/noddigital/teyit.link/utils"
 	"html/template"
 	"net/http"
 )

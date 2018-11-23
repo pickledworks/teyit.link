@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/araddon/dateparse"
-	"gitlab.com/nod/teyit/link/database"
-	"gitlab.com/nod/teyit/link/utils"
+	"github.com/noddigital/teyit.link/database"
+	"github.com/noddigital/teyit.link/utils"
 	"net/http"
 	"net/url"
 	"strconv"

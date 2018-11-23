@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
-	_ "gitlab.com/nod/teyit/link/statik"
-	"gitlab.com/nod/teyit/link/utils"
+	_ "github.com/noddigital/teyit.link/statik"
+	"github.com/noddigital/teyit.link/utils"
 	"log"
 	"net/http"
 )
